@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yavalath - ヤバラス</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Yavalath</h1>
+        
+        <div class="game-info">
+            <div class="current-player">
+                現在のプレイヤー: <span id="player-indicator">白</span>
+            </div>
+            <div class="game-status" id="game-status"></div>
+        </div>
+
+        <div id="board"></div>
+
+        <div class="controls">
+            <button id="reset-btn">リセット</button>
+        </div>
+
+        <div class="rules">
+            <h2>ルール</h2>
+            <ul>
+                <li>2人のプレイヤーが交互に石を置きます</li>
+                <li><strong>勝利:</strong> 自分の色の石を4つ直線に並べる</li>
+                <li><strong>敗北:</strong> 自分の色の石が3つ直線に並ぶ</li>
+                <li>縦、横、斜めのいずれかの方向で判定されます</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
