@@ -275,6 +275,25 @@ body{background:var(--ink);color:var(--text);font-family:var(--fn);line-height:1
 .l-badge.red{background:rgba(232,64,80,.2);color:#ff7080;border:1px solid rgba(232,64,80,.3)}
 .l-badge.teal{background:rgba(24,200,168,.2);color:var(--teal);border:1px solid rgba(24,200,168,.3)}
 .l-badge.gold{background:rgba(232,160,32,.2);color:var(--gold);border:1px solid rgba(232,160,32,.3)}
+/* Key points box (APG4b style) */
+.l-keypoints{background:rgba(24,200,168,.07);border:1px solid rgba(24,200,168,.3);border-radius:var(--r2);padding:14px 16px;margin:0 0 20px}
+.l-keypoints-title{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.l-keypoints ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
+.l-keypoints li{font-size:13px;color:var(--text2);line-height:1.7}
+.l-keypoints li strong{color:var(--text)}
+.l-keypoints li code{font-family:var(--fm);color:var(--teal);background:rgba(24,200,168,.1);padding:1px 5px;border-radius:3px;font-size:11.5px}
+/* IO example (input/output pair) */
+.l-io-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.l-io-box{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.l-io-box-title{background:var(--surface3);padding:5px 11px;font-size:10px;color:var(--text3);font-family:var(--fm);font-weight:700;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.l-io-box pre{padding:9px 12px;font-family:var(--fm);font-size:12px;color:var(--teal);line-height:1.6;white-space:pre;margin:0}
+/* Execution result */
+.l-exec{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);margin:8px 0;overflow:hidden}
+.l-exec-title{background:var(--surface3);padding:5px 11px;font-size:10px;color:var(--text3);font-family:var(--fm);font-weight:700;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.l-exec pre{padding:9px 12px;font-family:var(--fm);font-size:12px;color:var(--green);line-height:1.6;white-space:pre;margin:0}
+/* Note / 細かい話 callout */
+.l-note{background:var(--surface3);border-radius:var(--r2);padding:12px 14px;margin:10px 0;font-size:12px;color:var(--text3);line-height:1.75;border-left:3px solid var(--text3)}
+.l-note strong{color:var(--text2)}
 /* Code block */
 .code-block{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);margin:12px 0;overflow:hidden}
 .code-block-title{background:var(--surface3);padding:6px 13px;font-size:11px;color:var(--text3);font-family:var(--fm);font-weight:600;border-bottom:1px solid var(--border);letter-spacing:.04em}
@@ -750,448 +769,284 @@ const PROBLEMS = [
 // sections support: t(heading), b(body), concept, warn, danger,
 //   steps[], table{h,rows}, code, codes[], title(code title)
 // ═══════════════════════════════════════════════════════════
-cat > /tmp/part2.txt << 'CURREOF'
+const CURRICULUM = [
 {level:1,title:'白帯修行',sub:'入出力・基礎計算・条件分岐・ループ',icon:'🌱',cls:'l1',lessons:[
-  {id:'l01',title:'C言語の基本構造',icon:'📝',desc:'printf・scanf・変数・型',xp:50,time:'20分',content:{sections:[
-    {keypoints:['`#include <stdio.h>` を最初に書く','プログラムは **main関数** の中に書く','出力は `printf`、入力は `scanf`','`scanf` の変数には必ず `&` を付ける','文末には `;`（セミコロン）が必要']},
-    {t:'プログラムの骨格',b:'C言語のプログラムは必ずこの形。まず丸暗記しよう。',
-     code:'#include <stdio.h>\n\nint main() {\n    /* ここに処理を書く */\n    return 0;\n}',lang:'c',title:'最小プログラム（雛形）'},
-    {t:'出力：printf',b:'`printf("書式文字列", 値, ...)` で出力する。`\\n` が改行。',
-     code:'#include <stdio.h>\nint main() {\n    printf("Hello!\\n");           /* 文字列 */\n    printf("%d\\n", 42);           /* 整数 */\n    printf("%d + %d = %d\\n", 3, 4, 3+4);  /* 複数 */\n    return 0;\n}',lang:'c',title:'printf の使い方'},
-    {exec:[{title:'実行結果',text:'Hello!\n42\n3 + 4 = 7'}]},
-    {t:'入力：scanf',b:'`scanf("書式文字列", &変数名)` で入力を受け取る。',
-     code:'#include <stdio.h>\nint main() {\n    int a, b;\n    scanf("%d", &a);          /* 整数1つ */\n    scanf("%d %d", &a, &b);   /* 整数2つ（空白区切り） */\n    printf("%d\\n", a + b);\n    return 0;\n}',lang:'c',title:'scanf の使い方'},
-    {warn:'**`&` を絶対に忘れるな！**\n`scanf("%d", x)` → ❌ 動かない（クラッシュする）\n`scanf("%d", &x)` → ✅ 正しい\n理由：scanf は「変数のアドレス（住所）」を受け取り、そこに直接書き込む関数。'},
-    {t:'変数の型',
-     table:{h:['型','サイズ','範囲の目安','いつ使う？'],rows:[
-       ['`int`','4 byte','約 ±21億','ほとんどの場面'],
-       ['`long long`','8 byte','約 ±922京','答えが大きくなるとき'],
-       ['`double`','8 byte','小数','幾何・確率'],
-       ['`char`','1 byte','文字1文字','文字・文字列処理'],
-     ]}},
-    {t:'整数の四則演算',
-     code:'int a = 10, b = 3;\nprintf("%d\\n", a + b);  /* 13 */\nprintf("%d\\n", a - b);  /* 7  */\nprintf("%d\\n", a * b);  /* 30 */\nprintf("%d\\n", a / b);  /* 3  ← 小数点以下は切り捨て！ */\nprintf("%d\\n", a % b);  /* 1  ← 余り */\n',lang:'c',title:'四則演算と剰余'},
-    {danger:'**整数除算は切り捨て！**\n`7 / 2` は `3` になる（`3.5` ではない）。\n小数が欲しいときは `7.0 / 2` または `(double)7 / 2` と書く。'},
-    {t:'書式指定子まとめ',
-     table:{h:['型','scanf','printf'],rows:[
-       ['`int`','`%d, &x`','`%d`'],
-       ['`long long`','`%lld, &x`','`%lld`'],
-       ['`double`','`%lf, &x`','`%f`'],
-       ['`char`','`%c, &x`','`%c`'],
-       ['文字列 `char[]`','`%s, s` (& 不要)','`%s`'],
-     ]}},
-    {note:'**細かい話**: `return 0;` は「正常終了」の合図。省略できる環境もあるが書いておく方が安全。コメントは `/* ... */` または `// ...` で書ける。'},
-  ],quiz:{q:'scanf で変数 n に整数を読み込む正しい書き方は？',
-    opts:['scanf("%d", n)','scanf("%d", &n)','scanf(&n, "%d")','input("%d", &n)'],
-    ans:1,exp:'&n は「n のアドレス（住所）」。scanf はそこに直接書き込む。& を忘れると動かない or クラッシュする。'}}},
-
-  {id:'l02',title:'条件分岐 if / else',icon:'🔀',desc:'場合分け・比較演算子・論理演算子',xp:60,time:'20分',content:{sections:[
-    {keypoints:['`if(条件)` で条件が true のとき実行','`else if` で追加条件、`else` でそれ以外','比較: `==` `!=` `<` `<=` `>` `>=`','論理: `&&`（かつ）`||`（または）`!`（否定）','**境界値ミスが最も多いバグ**、`<` と `<=` の違いに注意']},
-    {t:'if / else if / else の基本構造',
-     code:'#include <stdio.h>\nint main() {\n    int x;\n    scanf("%d", &x);\n    if(x > 0) {\n        printf("正\\n");\n    } else if(x < 0) {\n        printf("負\\n");\n    } else {\n        printf("ゼロ\\n");\n    }\n    return 0;\n}',lang:'c',title:'正・負・ゼロの判定'},
-    {io:[{label:'入力例 1',text:'5'},{label:'出力例 1',text:'正'}]},
-    {io:[{label:'入力例 2',text:'-3'},{label:'出力例 2',text:'負'}]},
-    {t:'比較演算子と論理演算子',
-     table:{h:['演算子','意味','例'],rows:[
-       ['`a == b`','a と b が等しい','`x == 0`'],
-       ['`a != b`','等しくない','`x != 1`'],
-       ['`a < b`','a が b より小さい','`x < 10`'],
-       ['`a <= b`','a が b 以下','`x <= 10`'],
-       ['`a > b`','a が b より大きい','`x > 0`'],
-       ['`a >= b`','a が b 以上','`x >= 0`'],
-       ['`A && B`','A かつ B（両方 true）','`x>0 && x<10`'],
-       ['`A || B`','A または B','`x<0 || x>100`'],
-       ['`!A`','A の否定','`!flag`'],
-     ]}},
-    {warn:'**`=` と `==` の違い**\n`if(x = 5)` → x に 5 を代入（常に true になる バグ）\n`if(x == 5)` → x が 5 かどうか比較（正しい）'},
-    {t:'実践：2025年第2問「タワーから見る花火」',
-     b:'花火の球（中心 C、半径 R）と展望デッキ（高さ H）の位置関係を判定する問題。',
-     steps:[
-       '**最低点** = `C - R`、**最高点** = `C + R` を求める',
-       '`最低点 <= H && H <= 最高点` → `side`（横から見る）',
-       '`最低点 > H` → `up`（見上げる）',
-       '`最高点 < H` → `down`（見下ろす）',
-     ],
-     code:'#include <stdio.h>\nint main() {\n    int h, c, r;\n    scanf("%d %d %d", &h, &c, &r);\n    int lo = c - r;  /* 最低点 */\n    int hi = c + r;  /* 最高点 */\n    if(lo <= h && h <= hi)\n        printf("side\\n");\n    else if(lo > h)\n        printf("up\\n");\n    else\n        printf("down\\n");\n    return 0;\n}',lang:'c',title:'2025年Q2 完全解答'},
-    {io:[{label:'入力例 1',text:'1000 1200 300'},{label:'出力例 1',text:'side'}]},
-    {io:[{label:'入力例 2',text:'100 500 100'},{label:'出力例 2',text:'up'}]},
-    {t:'実践：2023年第2問「的当ての判定」',
-     b:'原点からの**マンハッタン距離** `|x| + |y|` が d 以下なら "Yes"。',
-     code:'#include <stdio.h>\n#include <stdlib.h>  /* abs() を使うため */\nint main() {\n    int d, x, y;\n    scanf("%d %d %d", &d, &x, &y);\n    if(abs(x) + abs(y) <= d)\n        printf("Yes\\n");\n    else\n        printf("No\\n");\n    return 0;\n}',lang:'c',title:'2023年Q2 完全解答'},
-    {note:'**細かい話**: `abs()` は `<stdlib.h>` または `<math.h>` で使える。long long には `llabs()` を使う。'},
-  ],quiz:{q:'`x=5` のとき `if(x>3 && x<10)` は実行される？',
-    opts:['Yes（実行される）','No（実行されない）','コンパイルエラー','実行時に決まる'],
-    ans:0,exp:'5>3 → true、5<10 → true。&& は両方 true のとき true になる。'}}},
-
-  {id:'l03',title:'for / while ループ',icon:'🔁',desc:'繰り返し処理・break・continue',xp:70,time:'25分',content:{sections:[
-    {keypoints:['`for(初期化; 条件; 更新)` で回数指定の繰り返し','`while(条件)` で条件指定の繰り返し','**`i < n`（0始まり）と `i <= n`（1始まり）を混同しない**','`break` でループを抜ける、`continue` で次の反復へ','二重ループで2次元データを処理できる']},
-    {t:'for ループの構造',
-     b:'`for(初期化; 継続条件; 更新)` という3つの部分で構成される。',
-     code:'for(int i = 0; i < 5; i++) {\n    printf("%d\\n", i);\n}',lang:'c',title:'基本の for ループ'},
-    {exec:[{title:'実行結果',text:'0\n1\n2\n3\n4'}]},
-    {t:'for ループの使い分け',
-     table:{h:['パターン','コード','用途'],rows:[
-       ['0〜n-1','`for(int i=0; i<n; i++)`','配列（最頻出）'],
-       ['1〜n','`for(int i=1; i<=n; i++)`','1始まりの合計'],
-       ['n-1〜0（逆順）','`for(int i=n-1; i>=0; i--)`','逆から処理'],
-       ['偶数のみ','`for(int i=0; i<n; i+=2)`','2ずつ増やす'],
-     ]}},
-    {t:'while ループ',
-     b:'回数が決まっていないが「ある条件の間ずっと繰り返す」ときに使う。',
-     code:'int b;\nscanf("%d", &b);\nwhile(b >= 1) {\n    printf("%d\\n", b);\n    b = b / 2;  /* 親の番号 = 自分 ÷ 2 */\n}',lang:'c',title:'while ループ（菌の祖先 2023年Q3）'},
-    {io:[{label:'入力',text:'12'},{label:'出力',text:'12\n6\n3\n1'}]},
-    {t:'break と continue',
-     codes:[
-       {title:'break ── ループを途中で抜ける',code:'for(int i = 0; i < 10; i++) {\n    if(i == 5) break;    /* i=5 で即終了 */\n    printf("%d ", i);    /* 0 1 2 3 4 */\n}\nprintf("\\n");',lang:'c'},
-       {title:'continue ── 次の繰り返しへスキップ',code:'for(int i = 0; i < 5; i++) {\n    if(i == 2) continue; /* i=2 をスキップ */\n    printf("%d ", i);    /* 0 1 3 4 */\n}\nprintf("\\n");',lang:'c'},
-     ]},
-    {t:'二重ループ',
-     b:'ループの中にループを書く。2次元データや全ペアの処理に使う。',
-     code:'/* 2025年Q3「登山記録」*/\nint n, m;\nscanf("%d %d", &n, &m);\nint ans = 0;\nfor(int i = 0; i < n; i++) {      /* 山ごと */\n    int peak = 0;\n    for(int j = 0; j < m; j++) {  /* 登山回数ごと */\n        int h;\n        scanf("%d", &h);\n        if(h > peak) peak = h;\n    }\n    ans += peak;\n}\nprintf("%d\\n", ans);',lang:'c',title:'二重ループ（2025年Q3）'},
-    {warn:'**境界値のミス**が一番多い！\n`for(int i=0; i<=n; i++)` で `a[n]` にアクセス → 範囲外バグ\n配列ループは必ず `i < n` で書く。'},
-  ],quiz:{q:'`for(int i=0; i<5; i++)` は何回実行される？',
-    opts:['4回','5回','6回','1回'],
-    ans:1,exp:'i = 0, 1, 2, 3, 4 の5回。i=5 で `i<5` が false になりループ終了。'}}},
-
-  {id:'l04',title:'配列',icon:'📦',desc:'1次元・2次元配列の使い方',xp:80,time:'30分',content:{sections:[
-    {keypoints:['配列は **同じ型の変数を連続して並べたもの**','インデックスは **0 始まり**（`a[0]` が最初）','宣言時はサイズを **制約の最大値 + 余裕** で取る','`a[n]` へのアクセスは **範囲外バグ**（`a[n-1]` が最後）','**グローバル変数**は自動で 0 初期化される（ローカルは不定）']},
-    {t:'1次元配列の宣言と基本操作',
-     code:'int a[5];            /* int 型を5個 */\na[0] = 10;           /* 代入 */\na[1] = 20;\nprintf("%d\\n", a[0]); /* 参照 → 10 */\n',lang:'c',title:'配列の基本'},
-    {t:'配列の入力・出力',
-     code:'#include <stdio.h>\nint main() {\n    int n;\n    scanf("%d", &n);\n    int a[100005];  /* 余裕を持って確保 */\n    for(int i = 0; i < n; i++) {\n        scanf("%d", &a[i]);\n    }\n    /* 出力 */\n    for(int i = 0; i < n; i++) {\n        printf("%d\\n", a[i]);\n    }\n    return 0;\n}',lang:'c',title:'配列の入出力'},
-    {t:'定番操作：最大値・最小値・合計',
-     code:'int mx = a[0], mn = a[0];\nlong long sum = 0;\nfor(int i = 0; i < n; i++) {\n    if(a[i] > mx) mx = a[i];  /* 最大値更新 */\n    if(a[i] < mn) mn = a[i];  /* 最小値更新 */\n    sum += a[i];               /* 合計 */\n}\nprintf("max=%d min=%d sum=%lld\\n", mx, mn, sum);',lang:'c',title:'最大・最小・合計'},
-    {t:'2次元配列',
-     b:'`int a[行数][列数]` で宣言する。行が先、列が後。',
-     code:'int a[105][105];  /* 最大 100×100 */\nfor(int i = 0; i < n; i++)\n    for(int j = 0; j < m; j++)\n        scanf("%d", &a[i][j]);',lang:'c',title:'2次元配列の入力'},
-    {t:'グローバル配列 vs ローカル配列',
-     codes:[
-       {title:'✅ グローバル（推奨）── 自動で 0 初期化、大きくてもOK',code:'#include <stdio.h>\nint a[1000005];  /* main の外に書く */\nint main() {\n    /* a は自動で全部 0 になっている */\n}',lang:'c'},
-       {title:'⚠️ ローカル ── 初期値が不定、大きすぎるとスタックオーバーフロー',code:'int main() {\n    int a[1000005];  /* 危険！スタックに積まれる */\n    /* 値は不定 → memset か for で初期化が必要 */\n}',lang:'c'},
-     ]},
-    {danger:'**3大配列バグ**\n① `a[n]` にアクセス（最後は `a[n-1]`）\n② 配列サイズが制約より小さい（`a[N+5]` など余裕を持たせる）\n③ ローカル配列の初期化忘れ（グローバルに書けば解決）'},
-    {note:'**細かい話**: `memset(a, 0, sizeof(a))` で配列を一括0初期化できる。`#include <string.h>` が必要。'},
-  ],quiz:{q:'`int a[5]` の有効なインデックスは？',
-    opts:['0〜5','0〜4','1〜5','1〜4'],
-    ans:1,exp:'C は 0 始まり。a[0]〜a[4] の5要素。a[5] は範囲外でメモリ破壊になる！'}}},
-
-  {id:'l05',title:'剰余・切り上げ・long long',icon:'🔢',desc:'% 演算子・切り上げ除算・大きな数',xp:60,time:'20分',content:{sections:[
-    {keypoints:['`a % b` は a を b で割った**余り**','偶奇判定: `a % 2 == 0` なら偶数','切り上げ除算: `(a + b - 1) / b`','21億を超えそうなら **long long**','long long の掛け算: **キャスト** `(long long)a * b`']},
-    {t:'% 演算子（余り）',
-     code:'printf("%d\\n", 10 % 3);   /* 1  ← 10 = 3×3 + 1 */\nprintf("%d\\n", 7 % 2);    /* 1  ← 奇数 */\nprintf("%d\\n", 8 % 2);    /* 0  ← 偶数 */\nprintf("%d\\n", 12 % 5);   /* 2  */\n',lang:'c',title:'剰余の基本'},
-    {t:'% の使いどころ',
-     table:{h:['用途','コード','例'],rows:[
-       ['偶奇判定','`if(a%2==0)`','偶数チェック'],
-       ['周期処理','`i % n`','0,1,...,n-1,0,1,...'],
-       ['均等分割','`a % (n+1)`','2023年Q1キャンディ分配'],
-       ['最後の桁','`n % 10`','123→3'],
-     ]}},
-    {t:'切り上げ除算（競技頻出！）',
-     b:'「N 個を K 個ずつ分けると何グループ？」という切り上げを **整数演算だけ** で求める。',
-     code:'/* NG: (int)ceil((double)N/K) は浮動小数誤差あり */\n/* OK: (N + K - 1) / K を使う */\nint N = 7, K = 3;\nint groups = (N + K - 1) / K;  /* = 3 */\nprintf("%d\\n", groups);',lang:'c',title:'切り上げ除算の公式'},
-    {concept:'**なぜ (N+K-1)/K で切り上げになるか？**\nN が K で割り切れる場合：(N + K - 1) / K = N/K（余りは K-1 で切り捨てられる）\nN が割り切れない場合：余りが 1〜K-1 → +K-1 すると繰り上がって切り上げになる。'},
-    {t:'2024年第2問「神輿の担ぎ手」',
-     code:'#include <stdio.h>\nint main() {\n    int n, c, w;\n    scanf("%d", &n);\n    scanf("%d %d", &c, &w);\n    int need = (w + c - 1) / c;  /* 最少人数（切り上げ） */\n    if(need <= n) {\n        printf("Yes\\n%d\\n", need);\n    } else {\n        printf("No\\n");\n    }\n    return 0;\n}',lang:'c',title:'2024年Q2 完全解答'},
-    {io:[{label:'入力例 1',text:'10\n50 250'},{label:'出力例 1',text:'Yes\n5'}]},
-    {io:[{label:'入力例 2',text:'10\n50 650'},{label:'出力例 2',text:'No'}]},
-    {t:'long long ── 大きな数',
-     danger:'`int` の最大値は約 **21億**。掛け算の結果はすぐに超える！\n`int a=100000, b=100000; a*b` → ❌ オーバーフロー（約-13億になる）'},
-     code:'/* NG */\nint a = 100000, b = 100000;\nprintf("%d\\n", a * b);           /* -1294967296 など */\n\n/* OK: 片方を (long long) にキャスト */\nlong long ok = (long long)a * b;\nprintf("%lld\\n", ok);             /* 10000000000 */\n',lang:'c',title:'long long キャスト',
-    {note:'**細かい話**: `long long` のリテラルは末尾に `LL` をつける。例: `1000000000LL`。\n`long long` のサイズは8バイト、最大値は約 922京（9.2×10^18）。'},
-  ],quiz:{q:'7 を 3 で切り上げ除算（3個ずつ分けると何グループ？）の計算は？',
-    opts:['7 / 3','(7 + 3) / 3','(7 + 3 - 1) / 3','ceil(7, 3)'],
-    ans:2,exp:'(7 + 3 - 1) / 3 = 9 / 3 = 3。7÷3=2余り1なので切り上げで3グループ。'}}},
-
-  {id:'l06',title:'関数・再帰・素数',icon:'⚙️',desc:'関数定義・GCD・素数判定・再帰',xp:70,time:'30分',content:{sections:[
-    {keypoints:['関数は `返り値の型 関数名(引数) { ... return 値; }` で定義','再帰関数には**ベースケース（終了条件）**が必須','GCD はユークリッドの互除法で O(log N) で求まる','素数判定は 2〜√N で割り切れるか調べる（`i*i <= n`）','`main` より前に関数を書くか、**プロトタイプ宣言**をする']},
-    {t:'関数の定義と呼び出し',
-     code:'#include <stdio.h>\n\n/* 関数定義（main の前に書く） */\nint add(int a, int b) {\n    return a + b;\n}\n\nint main() {\n    int result = add(3, 4);\n    printf("%d\\n", result);  /* 7 */\n    return 0;\n}',lang:'c',title:'関数の基本'},
-    {t:'GCD（最大公約数）── ユークリッドの互除法',
-     concept:'`gcd(a, b) = gcd(b, a % b)` という関係を再帰で実装する。\n`b == 0` のとき `a` がGCD（ベースケース）。',
-     code:'long long gcd(long long a, long long b) {\n    if(b == 0) return a;      /* ベースケース */\n    return gcd(b, a % b);     /* 再帰 */\n}\n\nlong long lcm(long long a, long long b) {\n    return a / gcd(a, b) * b; /* 先に割る→オーバーフロー防止 */\n}\n',lang:'c',title:'GCD / LCM'},
-    {exec:[{title:'gcd(12, 8) の計算過程',text:'gcd(12, 8)\n→ gcd(8, 12%8) = gcd(8, 4)\n→ gcd(4, 8%4) = gcd(4, 0)\n→ 0 なので 4 を返す\n答え: 4'}]},
-    {t:'素数判定',
-     b:'2 以上 √N 以下の整数で割り切れなければ素数。`i*i <= n` で √N を使う（浮動小数誤差なし）。',
-     code:'#include <stdbool.h>\nbool isPrime(long long n) {\n    if(n < 2) return false;\n    for(long long i = 2; i * i <= n; i++) {\n        if(n % i == 0) return false;  /* 割り切れた → 素数でない */\n    }\n    return true;  /* 割り切れなかった → 素数 */\n}',lang:'c',title:'素数判定 O(√N)'},
-    {t:'2023年第5問「2023に似た数」',
-     b:'N が p×p×q（p≠q、両方素数）の形か判定する。',
-     code:'/* p を 2 から p³ <= N の範囲で探す */\nbool ok = false;\nfor(long long p = 2; p * p * p <= n; p++) {\n    if(!isPrime(p)) continue;\n    if(n % (p * p) == 0) {\n        long long q = n / p / p;\n        if(isPrime(q) && q != p) {\n            ok = true;\n            break;\n        }\n    }\n}\nprintf(ok ? "Yes\\n" : "No\\n");',lang:'c',title:'2023年Q5 コア部分'},
-    {warn:'**再帰の注意点**\n① ベースケースが必ないと無限ループ → スタックオーバーフロー\n② 深すぎる再帰（N > 10万 程度）は while ループで書き直す'},
-    {note:'**細かい話**: `#include <stdbool.h>` で `bool`・`true`・`false` が使える。なければ `int` で代用（0=false, 1=true）。'},
-  ],quiz:{q:'gcd(18, 12) は？',
-    opts:['2','3','6','9'],
-    ans:2,exp:'gcd(18,12) → gcd(12,6) → gcd(6,0) = 6。'}}},
-
-  {id:'l07',title:'文字列処理',icon:'🔤',desc:'char配列・ASCII・文字列関数',xp:75,time:'25分',content:{sections:[
-    {keypoints:['C の文字列は `char` の配列、末尾は `\\0`（ヌル文字）で終わる','各文字は **ASCIIコード（整数）** として扱われる','数字文字 → 整数: `c - \'0\'`（例: `\'7\' - \'0\' = 7`）','`strlen(s)` で長さ、`sprintf(buf, "%d", n)` で数値→文字列','`scanf("%s", s)` は `&` 不要']},
-    {t:'文字列の宣言と入出力',
-     code:'#include <stdio.h>\n#include <string.h>  /* strlen などを使うため */\n\nint main() {\n    char s[105];\n    scanf("%s", s);              /* & は不要！ */\n    int len = strlen(s);         /* 文字列の長さ */\n    printf("%s\\n", s);\n    printf("長さ: %d\\n", len);\n    return 0;\n}',lang:'c',title:'文字列の基本'},
-    {t:'文字は整数！── ASCII コード',
-     code:'char c = \'A\';\nprintf("%c\\n", c);   /* A（文字として出力） */\nprintf("%d\\n", c);   /* 65（数値として出力） */\n\n/* よく使うASCII値 */\n/* \'0\' = 48, \'9\' = 57 */\n/* \'A\' = 65, \'Z\' = 90 */\n/* \'a\' = 97, \'z\' = 122 */\n',lang:'c',title:'文字とASCIIコード'},
-    {t:'数字文字 ↔ 整数の変換（最頻出！）',
-     codes:[
-       {title:'数字文字 → 整数',code:'char c = \'7\';\nint num = c - \'0\';    /* 7 */\nprintf("%d\\n", num);',lang:'c'},
-       {title:'整数 → 文字列',code:'char buf[20];\nint n = 12345;\nsprintf(buf, "%d", n);  /* buf = "12345" */\nprintf("%s\\n", buf);',lang:'c'},
-     ]},
-    {t:'2024年第3問「ラッキーナンバー」完全解答',
-     b:'整数 n の10進表記に数字 d が何個含まれるか数える。',
-     code:'#include <stdio.h>\n#include <string.h>\n\nint main() {\n    int d, n;\n    scanf("%d %d", &d, &n);\n    char buf[20];\n    sprintf(buf, "%d", n);   /* 整数を文字列に変換 */\n    int cnt = 0;\n    for(int i = 0; buf[i] != \'\\0\'; i++) {\n        if(buf[i] - \'0\' == d) cnt++;\n    }\n    printf("%d\\n", cnt);\n    return 0;\n}',lang:'c',title:'2024年Q3 完全解答'},
-    {io:[{label:'入力',text:'9 19191'},{label:'出力',text:'2'}]},
-    {t:'よく使う文字列関数',
-     table:{h:['関数','意味','必要なヘッダ'],rows:[
-       ['`strlen(s)`','文字列の長さ','`<string.h>`'],
-       ['`strcmp(a, b)`','比較（0=等しい、負/正=辞書順）','`<string.h>`'],
-       ['`strcpy(dst, src)`','文字列をコピー','`<string.h>`'],
-       ['`sprintf(buf, fmt, ...)`','書式付きで buf に書き込む','`<stdio.h>`'],
-       ['`s[i] == \'\\0\'`','文字列の終端チェック','不要'],
-     ]}},
-    {note:'**細かい話**: `char s[N]` で宣言するとき、N は「文字数 + 1（ヌル文字の分）」必要。長さ 100 の文字列には `char s[101]`。'},
-  ],quiz:{q:"'5' を int の 5 に変換する正しいコードは？",
-    opts:["int('5')","'5' - '0'","'5' - 5","atoi('5')"],
-    ans:1,exp:"'5' のASCIIは53、'0' は48。53-48=5。最速・最頻出の変換。"}}},
-
-  {id:'l08',title:'デバッグ・よくある罠',icon:'🐛',desc:'オーバーフロー・範囲外・初期化忘れ',xp:60,time:'20分',content:{sections:[
-    {keypoints:['**オーバーフロー**: `int` で21億超え → `long long` を使う','**範囲外アクセス**: `a[n]` は NG、`a[n-1]` が最後','**初期化忘れ**: ローカル変数は不定値、グローバル推奨','**scanf の型ミス**: `long long` は `%lld`','**改行忘れ**: 出力の末尾に `\\n` を付ける']},
-    {t:'罠 ① 整数オーバーフロー',
-     concept:'`int` の最大値は **約 21億**。掛け算では簡単に超える。\n答えが大きくなりそうな問題では最初から `long long` で宣言する。',
-     codes:[
-       {title:'❌ NG ── オーバーフロー',code:'int a = 100000, b = 100000;\nprintf("%d\\n", a * b);  /* -1294967296（おかしな値）*/\n',lang:'c'},
-       {title:'✅ OK ── long long キャスト',code:'printf("%lld\\n", (long long)100000 * 100000); /* 10000000000 */\n',lang:'c'},
-       {title:'✅ OK ── 最初から long long で宣言',code:'long long a = 100000, b = 100000;\nprintf("%lld\\n", a * b); /* 10000000000 */\n',lang:'c'},
-     ]},
-    {t:'罠 ② 配列の範囲外アクセス',
-     danger:'`int a[N]` の有効範囲は `a[0]` 〜 `a[N-1]`。\n`a[N]` にアクセスすると **メモリ破壊**（予測不能なバグ）。',
-     codes:[
-       {title:'❌ NG ── i<=n でa[n]にアクセス',code:'for(int i = 0; i <= n; i++) a[i] = 0; /* a[n] は範囲外！ */\n',lang:'c'},
-       {title:'✅ OK ── i<n で止める',code:'for(int i = 0; i < n; i++) a[i] = 0; /* 正しい */\n',lang:'c'},
-     ]},
-    {t:'罠 ③ 未初期化変数',
-     codes:[
-       {title:'❌ NG ── ローカル変数は初期化されない',code:'int main() {\n    int sum;  /* 初期値は不定！ */\n    for(int i = 0; i < n; i++) sum += a[i]; /* バグ */\n}',lang:'c'},
-       {title:'✅ OK ── 初期値を明示的に設定',code:'int main() {\n    int sum = 0;  /* 明示的に 0 で初期化 */\n    for(int i = 0; i < n; i++) sum += a[i];\n}',lang:'c'},
-       {title:'✅ OK ── グローバル変数は自動で 0',code:'int sum;  /* main の外 → 自動で 0 初期化 */\nint a[100005];\nint main() { ... }',lang:'c'},
-     ]},
-    {t:'罠 ④ scanf / printf の型ミス',
-     table:{h:['型','scanf（正しい）','よくあるミス'],rows:[
-       ['`int`','`scanf("%d", &x)`','`%i` は使わない'],
-       ['`long long`','`scanf("%lld", &x)`','`%d` はNG（値が壊れる）'],
-       ['`double`','`scanf("%lf", &x)`','printf は `%f`（違う！）'],
-       ['文字列','`scanf("%s", s)`','`&s` はNG'],
-     ]}},
-    {t:'提出前チェックリスト',
-     steps:[
-       '答えが **21億** を超えうるか？ → `long long` に変更',
-       '配列ループが `i < n` になっているか？（`i <= n` はNG）',
-       '`printf` の末尾に `\\n` があるか？（改行なしでWAになることがある）',
-       '`long long` の入出力に `%lld` を使っているか？',
-       '変数の初期化をしているか？',
-     ]},
-  ],quiz:{q:'`long long x;` を scanf で読む正しい書き方は？',
-    opts:['scanf("%d", &x)','scanf("%lld", &x)','scanf("%ld", &x)','scanf("%ll", &x)'],
-    ans:1,exp:'long long は %lld。%d は int 専用。間違えると読み込んだ値が壊れる。'}}},
+  {id:'l01',title:'C言語の基本構造',icon:'📝',desc:'printf, scanf, main関数',xp:50,time:'15分',content:{
+    sections:[
+      {concept:'**C言語**はパソコン甲子園で最も採用率が高い言語。高速・汎用的で、競技プログラミングに最適。まずプログラムの「骨格」を丸暗記しよう。'},
+      {t:'① 最小限のプログラム構造',
+       code:'#include <stdio.h>\nint main() {\n    /* ここに処理を書く */\n    return 0;\n}',lang:'c',title:'雛形（これをコピーして使い回す）'},
+      {t:'② 出力：printf',
+       steps:['**書式文字列**でどんな形で出すかを指定する','整数は `%d`、文字列は `%s`、改行は `\\n`'],
+       code:'printf("%d\\n", 42);       /* 42 */\nprintf("%d %d\\n", 1, 2);  /* 1 2 */\nprintf("答え: %d\\n", 3+4); /* 答え: 7 */\n',lang:'c',title:'printf の使い方'},
+      {t:'③ 入力：scanf',
+       warn:'**& を絶対に忘れるな！**　`scanf("%d", x)` は動かない。`scanf("%d", &x)` が正しい。',
+       code:'int a, b;\nscanf("%d", &a);          /* 1つだけ読む */\nscanf("%d %d", &a, &b);   /* 空白区切りで2つ読む */\nprintf("%d\\n", a + b);\n',lang:'c',title:'scanf の使い方'},
+      {t:'④ 変数の型と計算',
+       table:{
+         h:['型','サイズ','最大値の目安','使いどころ'],
+         rows:[
+           ['`int`','4 byte','約 **21億**','ほとんどの場面'],
+           ['`long long`','8 byte','約 **922京**','大きな数・掛け算後'],
+           ['`double`','8 byte','小数','幾何・確率'],
+           ['`char`','1 byte','文字1文字','文字列処理'],
+         ]
+       }},
+      {danger:'**整数オーバーフロー** が最も多いバグ！掛け算や足し算の結果が int の範囲を超えると意図しない値になる。\n→ 答えが21億を超えそうなら最初から `long long` を使う。'},
+    ],
+    quiz:{q:'scanf で変数 x に整数を読み込む正しい書き方は？',opts:['scanf("%d", x)','scanf("%d", &x)','scanf(x, "%d")','input(x)'],ans:1,exp:'&x はxのアドレス（場所）を意味する。scanfは「変数の住所」を受け取り、そこに直接書き込む。'}
+  }},
+  {id:'l02',title:'条件分岐 if/else',icon:'🔀',desc:'場合分けのプログラム',xp:60,time:'20分',content:{
+    sections:[
+      {concept:'プログラムの「判断力」= if/else。条件が **true** なら実行、**false** なら別の処理へ。PCK過去問の第2問はほぼ必ずこれが要る。'},
+      {t:'① if/else if/else の構造',
+       code:'int x;\nscanf("%d",&x);\nif(x > 0) {\n    printf("正\\n");\n} else if(x < 0) {\n    printf("負\\n");\n} else {\n    printf("ゼロ\\n");\n}',lang:'c',title:'基本パターン'},
+      {t:'② 比較演算子・論理演算子',
+       table:{
+         h:['演算子','意味','例'],
+         rows:[
+           ['`==`','等しい','`a == b`'],
+           ['`!=`','等しくない','`a != b`'],
+           ['`<` `<=`','より小さい / 以下','`x <= 5`'],
+           ['`>` `>=`','より大きい / 以上','`x >= 0`'],
+           ['`&&`','かつ（両方 true）','`x>0 && x<10`'],
+           ['`||`','または（どちらか true）','`x<0 || x>100`'],
+           ['`!`','否定','`!flag`'],
+         ]
+       }},
+      {t:'③ 実践：2025年第2問「タワーから見る花火」',
+       concept:'花火の球（中心C、半径R）と展望デッキ（高さH）の位置関係を 3 パターンで場合分けする。',
+       steps:[
+         '最低点 `lo = C - R`、最高点 `hi = C + R` を計算',
+         '`lo <= H && H <= hi` → **side**（横から見る）',
+         '`lo > H` → **up**（見上げる）',
+         '`hi < H` → **down**（見下ろす）',
+       ],
+       code:'int lo=c-r, hi=c+r;\nif(lo<=h && h<=hi) printf("side\\n");\nelse if(lo > h)    printf("up\\n");\nelse               printf("down\\n");',lang:'c',title:'解答コード'},
+      {warn:'**境界値のミス**が最多バグ。`<` と `<=` のどちらを使うかは問題文を3回読め！'},
+    ],
+    quiz:{q:'x=5のとき if(x>3 && x<10) は実行される？',opts:['Yes（true）','No（false）','エラー','実行時に決まる'],ans:0,exp:'5>3=true かつ 5<10=true。&& は両方 true のとき true。'}
+  }},
+  {id:'l03',title:'for/whileループ',icon:'🔁',desc:'繰り返し処理をマスター',xp:70,time:'25分',content:{
+    sections:[
+      {concept:'「同じことを N 回繰り返す」= ループ。競技プログラミングの 90% はループで成り立っている。'},
+      {t:'① forループ ── 回数が決まっているとき',steps:['`int i=0` → 初期値','`i < n` → 継続条件（ここが境界値ミスの元！）','`i++` → 1ずつ増やす'],
+       code:'int sum = 0;\nfor(int i = 1; i <= 10; i++) {\n    sum += i;\n}\nprintf("%d\\n", sum); /* 55 */',lang:'c',title:'1+2+…+10'},
+      {t:'② whileループ ── 条件で動かすとき',concept:'回数ではなく「〇〇になるまで」という処理に向いている。\n2023年第3問「菌の祖先」: 番号が1以上のあいだ親を辿り続ける。',
+       code:'int b;\nscanf("%d", &b);\nwhile(b >= 1) {\n    printf("%d\\n", b);\n    b = b / 2;  /* 親の番号 = 自分 ÷ 2 */\n}',lang:'c',title:'菌の祖先（2023年Q3）'},
+      {t:'③ 二重ループ ── 2次元データ',concept:'2025年第3問「登山記録」は N山×M回。外ループ=山、内ループ=登山回数。',
+       code:'int ans = 0;\nfor(int i = 0; i < n; i++) {        /* 山ごと */\n    int peak = 0;\n    for(int j = 0; j < m; j++) {    /* 登山回数ごと */\n        int h; scanf("%d", &h);\n        if(h > peak) peak = h;\n    }\n    ans += peak;\n}\nprintf("%d\\n", ans);',lang:'c',title:'登山記録（2025年Q3）'},
+      {warn:'`i < n` と `i <= n` の違いに注意！**n個の配列**なら `i < n`（0〜n-1）、**1〜nの合計**なら `i <= n`。'},
+    ],
+    quiz:{q:'for(int i=0; i<5; i++) は何回実行される？',opts:['4回','5回','6回','0回'],ans:1,exp:'i=0,1,2,3,4 の5回。i=5で i<5 が false になりループ終了。'}
+  }},
+  {id:'l04',title:'配列の使い方',icon:'📦',desc:'N個のデータをまとめて管理',xp:80,time:'30分',content:{
+    sections:[
+      {concept:'配列 = 同じ型の変数を連続して並べたもの。N個のデータを処理するには配列が必須。\nインデックスは **0始まり** ← ここが最大の落とし穴！'},
+      {t:'① 1次元配列',steps:['`int a[100000];` → サイズは必ず最大制約+αで宣言','`a[0]` が最初、`a[n-1]` が最後。`a[n]` は**範囲外！**','`for(int i=0;i<n;i++) scanf("%d",&a[i]);` で読み込む'],
+       code:'int n; scanf("%d", &n);\nint a[100005];  /* 余裕を持って確保 */\nfor(int i = 0; i < n; i++) scanf("%d", &a[i]);\nint mx = a[0];\nfor(int i = 1; i < n; i++) if(a[i] > mx) mx = a[i];\nprintf("%d\\n", mx);',lang:'c',title:'最大値（定番パターン）'},
+      {t:'② 2次元配列（登山記録問題より）',
+       code:'int a[105][105]; /* [行][列] の順 */\nfor(int i = 0; i < n; i++)\n    for(int j = 0; j < m; j++)\n        scanf("%d", &a[i][j]);',lang:'c',title:'2次元配列の入力'},
+      {danger:'**3大バグ**: ① `a[n]` 範囲外アクセス ② 配列サイズが小さすぎる ③ ローカル配列の初期化忘れ（グローバルなら自動0）'},
+    ],
+    quiz:{q:'int a[5] の有効なインデックスは？',opts:['0〜5','0〜4','1〜5','1〜4'],ans:1,exp:'C は 0 始まり。a[0]〜a[4] の5要素。a[5] は範囲外でメモリ破壊！'}
+  }},
+  {id:'l05',title:'剰余% と数の性質',icon:'🔢',desc:'余り計算・切り上げ・大きな数',xp:60,time:'20分',content:{
+    sections:[
+      {concept:'`%` は「割った余り」。**周期・偶奇・均等分割**のすべてに使う競技必須ツール。'},
+      {t:'① % の基本',table:{h:['式','結果','使いどころ'],rows:[['`10 % 3`','1','10÷3の余り'],['`7 % 2`','1（奇数）','偶奇判定'],['`a % (n+1)`','0〜n','2023年Q1 キャンディ分配']]}},
+      {t:'② 切り上げ除算',concept:'「N 個を K 人で分けるときの最少人数」→ `(N + K - 1) / K` で切り上げ計算。\n**2024年第2問「神輿の担ぎ手」** で使う！',
+       code:'int w=250, c=50;\nint need = (w + c - 1) / c; /* = 5（切り上げ） */\n',lang:'c',title:'切り上げ除算パターン'},
+      {t:'③ long long ── 大きな数',danger:'`int` の最大は約21億。**掛け算後**に簡単に超える！`(long long)a*b` でキャストを忘れずに。',
+       code:'long long ok = (long long)100000 * 100000;\nprintf("%lld\\n", ok);  /* 10000000000 */\n',lang:'c',title:'long long キャスト'},
+    ],
+    quiz:{q:'(250 + 50 - 1) / 50 の結果は？',opts:['4','5','6','50'],ans:1,exp:'(299)/50 = 5（整数除算）。切り上げ除算の定番パターン。'}
+  }},
+  {id:'l06',title:'関数と再帰',icon:'⚙️',desc:'コードを整理して再利用する',xp:70,time:'25分',content:{
+    sections:[
+      {concept:'関数 = 処理に名前をつけて再利用できるようにしたもの。素数判定・GCDなど頻出処理は関数化して使い回そう。'},
+      {t:'① GCD / LCM（競技定番）',steps:['`gcd(a,b)` = `gcd(b, a%b)` ← ユークリッドの互除法','`lcm = a / gcd(a,b) * b` ← 先に割ってからかける（オーバーフロー対策）'],
+       code:'long long gcd(long long a, long long b) {\n    return b == 0 ? a : gcd(b, a % b);\n}\nlong long lcm(long long a, long long b) {\n    return a / gcd(a, b) * b;\n}',lang:'c',title:'GCD / LCM'},
+      {t:'② 素数判定',concept:'2 から √N まで割り切れるか調べる。`i*i <= n` という形が安全（浮動小数誤差がない）。\n2023年第5問「2023に似た数」で使う！',
+       code:'#include <stdbool.h>\nbool isPrime(long long n) {\n    if(n < 2) return false;\n    for(long long i = 2; i * i <= n; i++)\n        if(n % i == 0) return false;\n    return true;\n}',lang:'c',title:'素数判定'},
+      {warn:'再帰には必ず **ベースケース（終了条件）** が必要。ないと無限ループ → スタックオーバーフロー！'},
+    ],
+    quiz:{q:'gcd(12, 8) は？',opts:['2','4','6','24'],ans:1,exp:'gcd(12,8) → gcd(8,4) → gcd(4,0) = 4。'}
+  }},
+  {id:'l07',title:'文字列処理',icon:'🔤',desc:'文字列の読み取り・操作・変換',xp:75,time:'25分',content:{
+    sections:[
+      {concept:'C言語の文字列は `char` の配列。各文字は **ASCIIコード（整数）**。\n`\'0\'`=48、`\'9\'`=57、`\'A\'`=65 ── 差を使った変換が頻出！'},
+      {t:'① 文字列の入出力',code:'char s[105];\nscanf("%s", s);        /* & は不要 */\nint len = strlen(s);   /* 長さ */\nprintf("%s len=%d\\n", s, len);\n',lang:'c',title:'文字列読み込み'},
+      {t:'② 文字 ↔ 整数 変換（超頻出）',steps:["数字文字→整数: `int n = c - '0';`（`'7'-'0'=7`）","整数→文字列: `sprintf(buf, \"%d\", n);`"],
+       code:'/* 2024年Q3 ラッキーナンバー */\nchar buf[20];\nint d, n; scanf("%d %d", &d, &n);\nsprintf(buf, "%d", n);  /* 整数→文字列 */\nint cnt = 0;\nfor(int i = 0; buf[i]; i++)\n    if(buf[i] - \'0\' == d) cnt++;\nprintf("%d\\n", cnt);\n',lang:'c',title:'ラッキーナンバー（2024年Q3）'},
+      {t:'③ よく使う文字列関数',table:{h:['関数','働き'],rows:[['`strlen(s)`','文字列の長さ'],['`strcmp(a,b)`','比較（0=等しい）'],['`sprintf(buf,fmt,...)`','整数→文字列へ変換'],['`s[i]`','i番目の文字にアクセス']]}},
+    ],
+    quiz:{q:"'5' を int の 5 に変換するには？",opts:["int('5')","'5' - '0'","atoi('5')","'5' - 5"],ans:1,exp:"'5'のASCIIは53、'0'は48。53-48=5。最速・最頻出の変換。"}
+  }},
+  {id:'l08',title:'デバッグ・よくある罠',icon:'🐛',desc:'バグを先読みして防ぐ思考法',xp:60,time:'20分',content:{
+    sections:[
+      {concept:'よくあるバグのパターンを**先に知っておく**だけで正答率が劇的に上がる。提出前の3秒チェックで悔しい WA を防ごう。'},
+      {t:'罠① 整数オーバーフロー',danger:'`int × int` の結果が21億を超えるとバグる。掛け算の前に型を確認！',
+       codes:[{title:'❌ NG',code:'printf("%d\\n", 100000 * 100000); /* 変な値 */',lang:'c'},{title:'✅ OK',code:'printf("%lld\\n", (long long)100000 * 100000);',lang:'c'}]},
+      {t:'罠② 配列の範囲外',danger:'`int a[5]` で `a[5]` にアクセスするとメモリ破壊。`i <= n` を `i < n` に修正。',
+       code:'for(int i = 0; i < n; i++) a[i] = 0; /* OK */\n/* NG: i <= n はa[n]にアクセスしてしまう */',lang:'c',title:'正しいループ終了条件'},
+      {t:'罠③ scanf/printf のフォーマット',table:{h:['型','scanf','printf'],rows:[['`int`','`%d, &x`','`%d`'],['`long long`','`%lld, &x`','`%lld`'],['`double`','`%lf, &x`','`%f`'],['`char[]`','`%s, s`（& 不要）','`%s`']]}},
+      {warn:'提出前チェック: ① long long 必要か？ ② 配列サイズは十分か？ ③ 改行 `\\n` を忘れていないか？'},
+    ],
+    quiz:{q:'long long x; を scanf で読む正しい書き方は？',opts:['scanf("%d", &x)','scanf("%lld", &x)','scanf("%ld", &x)','scanf("%ll", &x)'],ans:1,exp:'long long は %lld。%d は int 専用。間違えると読み込み値が壊れる。'}
+  }}
 ]},
 {level:2,title:'青帯修行',sub:'ソート・探索・貪欲法・グラフ基礎',icon:'⚔️',cls:'l2',lessons:[
-  {id:'l09',title:'ソートアルゴリズム',icon:'📊',desc:'qsort・バブルソート・計算量',xp:100,time:'35分',content:{sections:[
-    {keypoints:['`qsort(配列, 要素数, サイズ, 比較関数)` が競技の標準','比較関数は `a<b → 負, a>b → 正, a==b → 0` を返す','バブルソートは O(N²) で遅い → N>10000 なら TLE','**ソートすると最大・最小が端に来る**','ソートしてから二分探索・貪欲法が使える']},
-    {t:'なぜソートが重要？',
-     b:'ソートは「データを並び替える」操作。これだけで多くの問題が簡単に解けるようになる。',
-     table:{h:['ソート後にできること','例'],rows:[
-       ['最大・最小を O(1) で取得','最大値は `a[n-1]`'],
-       ['二分探索が使える','値が存在するか O(log N) で判定'],
-       ['貪欲法が適用できる','最小コストを順に選ぶ'],
-       ['重複の除去','隣同士を比較するだけ'],
-     ]}},
-    {t:'qsort の使い方',
-     b:'`#include <stdlib.h>` で使える。比較関数を自分で定義する。',
-     code:'#include <stdio.h>\n#include <stdlib.h>\n\n/* 比較関数: 昇順 */\nint cmp(const void* a, const void* b) {\n    int x = *(int*)a;\n    int y = *(int*)b;\n    if(x < y) return -1;  /* a を先に */\n    if(x > y) return  1;  /* b を先に */\n    return 0;             /* 同じ */\n}\n\nint main() {\n    int a[] = {5, 2, 8, 1, 9};\n    int n = 5;\n    qsort(a, n, sizeof(int), cmp);\n    for(int i = 0; i < n; i++)\n        printf("%d ", a[i]);  /* 1 2 5 8 9 */\n    printf("\\n");\n    return 0;\n}',lang:'c',title:'qsort 昇順ソート'},
-    {exec:[{title:'実行結果',text:'1 2 5 8 9'}]},
-    {t:'昇順・降順の比較関数',
-     codes:[
-       {title:'昇順（小さい順）',code:'int cmpAsc(const void* a, const void* b) {\n    return *(int*)a - *(int*)b;\n}',lang:'c'},
-       {title:'降順（大きい順）',code:'int cmpDesc(const void* a, const void* b) {\n    return *(int*)b - *(int*)a;\n}',lang:'c'},
-     ]},
-    {warn:'**`*(int*)a - *(int*)b` は大きな数でオーバーフローする可能性がある！**\n安全なのは `if(x<y) return -1;` `if(x>y) return 1;` `return 0;` の3行版。'},
-    {t:'構造体のソート（複数キー）',
-     code:'typedef struct {\n    int x, y;\n} Point;\n\n/* x で昇順、同じなら y で昇順 */\nint cmpPoint(const void* a, const void* b) {\n    Point* pa = (Point*)a;\n    Point* pb = (Point*)b;\n    if(pa->x != pb->x) return pa->x - pb->x;\n    return pa->y - pb->y;\n}',lang:'c',title:'構造体のソート'},
-    {t:'バブルソート（学習用）',
-     b:'隣同士を比較して大きければ交換を繰り返す。シンプルだが O(N²) で遅い。',
-     code:'for(int i = 0; i < n - 1; i++) {\n    for(int j = 0; j < n - 1 - i; j++) {\n        if(a[j] > a[j+1]) {\n            int tmp = a[j];\n            a[j] = a[j+1];\n            a[j+1] = tmp;\n        }\n    }\n}',lang:'c',title:'バブルソート O(N²)'},
-    {note:'**計算量の目安（1秒 ≈ 10^8 演算）**\nN=10^5 → O(N log N) まで OK（約170万）、O(N²) は TLE（100億）\nN=10^3 → O(N²) まで OK'},
-  ],quiz:{q:'qsort の計算量は？',
-    opts:['O(N)','O(N log N)','O(N²)','O(2^N)'],
-    ans:1,exp:'qsort は O(N log N)。バブルソートは O(N²) で N=10^5 だと TLE。'}}},
-
-  {id:'l10',title:'二分探索',icon:'🔎',desc:'ソート済み配列の高速探索',xp:110,time:'35分',content:{sections:[
-    {keypoints:['**前提：配列がソート済み**であること','毎回範囲を半分に絞る → O(log N) = 約30回で終わる','`lo`（下限）と `hi`（上限）で範囲を管理する','**`lo <= hi` が継続条件**（`lo < hi` ではない！）','答えで二分探索: 「○○の最大値」は条件を二分探索で求める']},
-    {t:'二分探索のイメージ',
-     concept:'N=10^9 のソート済み配列から値を探すとき:\n・全探索: 最悪 10億回\n・二分探索: 最悪 **30回**（log₂(10^9) ≈ 30）\n毎回「この範囲の真ん中」を確認して、上半分か下半分に絞る。'},
-    {t:'二分探索の実装',
-     code:'#include <stdio.h>\n\nint main() {\n    int n;\n    scanf("%d", &n);\n    int a[100005];\n    for(int i = 0; i < n; i++) scanf("%d", &a[i]);\n    /* ソート済みが前提 */\n\n    int target;\n    scanf("%d", &target);\n\n    int lo = 0, hi = n - 1, ans = -1;\n    while(lo <= hi) {\n        int mid = lo + (hi - lo) / 2;  /* (lo+hi)/2 でも可だが桁溢れ対策 */\n        if(a[mid] == target) {\n            ans = mid;  /* 発見 */\n            break;\n        } else if(a[mid] < target) {\n            lo = mid + 1;  /* 右半分へ */\n        } else {\n            hi = mid - 1;  /* 左半分へ */\n        }\n    }\n    printf("%d\\n", ans);  /* -1 なら見つからない */\n    return 0;\n}',lang:'c',title:'二分探索（値の検索）'},
-    {io:[{label:'入力',text:'5\n2 5 8 12 16\n8'},{label:'出力',text:'2'}]},
-    {t:'二分探索の動作トレース',
-     exec:[{title:'target=8, 配列=[2,5,8,12,16] の場合',text:'lo=0, hi=4 → mid=2 → a[2]=8 == 8 → 発見！(ans=2)'}]},
-    {t:'「答えで二分探索」のパターン',
-     b:'「条件を満たす最大値（or最小値）」を求めるとき、答えの値 x を二分探索する。',
-     concept:'① 「x が答えになりうるか」を判定する関数を作る\n② その関数が true になる最大の x を二分探索\n→ monotone（単調性）があれば使える',
-     code:'/* 例: f(x) = (x が条件を満たすか？) */\nbool check(int x) {\n    /* ... */\n    return (条件);\n}\n\n/* check(x) が true になる最大の x を求める */\nint lo = 0, hi = MAX;\nwhile(lo < hi) {\n    int mid = (lo + hi + 1) / 2;  /* 切り上げ mid */\n    if(check(mid)) lo = mid;\n    else hi = mid - 1;\n}',lang:'c',title:'答えで二分探索テンプレート'},
-    {note:'**細かい話**: `mid = (lo + hi) / 2` は `lo` と `hi` が大きいとき int オーバーフローの可能性がある。`lo + (hi - lo) / 2` が安全。'},
-  ],quiz:{q:'N=10^9 のソート済み配列を二分探索すると最悪何回比較する？',
-    opts:['約1000回','約30回','約100回','約10億回'],
-    ans:1,exp:'log₂(10^9) ≈ 30。二分探索は毎回範囲を半分に絞るのでわずか30回で終わる。'}}},
-
-  {id:'l11',title:'貪欲法（Greedy）',icon:'🎯',desc:'局所最適から全体最適を導く',xp:120,time:'40分',content:{sections:[
-    {keypoints:['各ステップで「その時点での最良選択」をする','**局所最適 = 全体最適** が成り立つ場合のみ有効','ソートして端から取るパターンが最多','成立しない場合は DP や全探索が必要','証明できないときは DP と両方試す']},
-    {t:'貪欲法とは',
-     concept:'「目の前の最良選択を積み重ねていけば全体として最良になる」という考え方。\n例）コイン問題（500円、100円...）: 大きい方から順に使うのが最少枚数。\nただし、これが成立しない問題も多い（その場合は DP を使う）。'},
-    {t:'2025年第5問「二つの数列」── 貪欲法',
-     b:'数列A,Bでa[i]をb[i]に置き換える操作をK回行い、差の和 Σ(a[i]-b[i]) を最大化する。',
-     steps:[
-       '差 `d[i] = a[i] - b[i]` を計算する',
-       '操作で a[i] を b[i] に変えると d[i] が 0 になる',
-       '**d[i] が負のものを消す**ほど差の和が大きくなる',
-       'd[] を昇順ソートし、負のものからK個を0にする（差の和への影響を引く）',
-     ],
-     code:'#include <stdio.h>\n#include <stdlib.h>\n\nint cmp(const void* a, const void* b) {\n    return *(int*)a - *(int*)b;\n}\n\nint main() {\n    int n, k;\n    scanf("%d %d", &n, &k);\n    int a[100005], b[100005], d[100005];\n    for(int i = 0; i < n; i++) scanf("%d", &a[i]);\n    for(int i = 0; i < n; i++) scanf("%d", &b[i]);\n\n    long long sum = 0;\n    for(int i = 0; i < n; i++) {\n        d[i] = a[i] - b[i];\n        sum += d[i];\n    }\n    qsort(d, n, sizeof(int), cmp);  /* 昇順ソート */\n\n    for(int i = 0; i < k; i++) {\n        if(d[i] < 0) sum -= d[i];  /* 負の差を消す */\n    }\n    printf("%lld\\n", sum);\n    return 0;\n}',lang:'c',title:'2025年Q5 完全解答'},
-    {io:[{label:'入力例 1',text:'5 1\n0 2 1 3 4\n-2 1 0 2 3'},{label:'出力例 1',text:'5'}]},
-    {t:'2024年第5問「データセンター」── 貪欲法',
-     b:'N台のサーバーのうちM台を空にしたい。空にするM台を決めてファイルを移動できるか判定。',
-     steps:[
-       'ファイル数が**多い順**にM台を「空にする対象」として選ぶ（貪欲の選択）',
-       '残り N-M 台の空き容量の合計 ≥ M台のファイル合計 → "Yes"',
-     ],
-     code:'/* ファイル数(a[i])が多い順にソート */\nqsort(sv, n, sizeof(Server), cmpDesc);\nlong long need = 0, cap = 0;\nfor(int i = 0; i < m; i++) need += sv[i].a;    /* 空にする台のファイル数 */\nfor(int i = m; i < n; i++) cap += sv[i].c - sv[i].a; /* 残り台の空き容量 */\nprintf(need <= cap ? "Yes\\n" : "No\\n");',lang:'c',title:'2024年Q5 核心部分'},
-    {warn:'貪欲法は「証明なしに使うと WA になる」危険性がある。\nPCK の問題では典型的な貪欲パターンが多いので、ソート後に端から取るパターンを覚えよう。'},
-  ],quiz:{q:'貪欲法が使えないのはどれ？',
-    opts:['最小コインで金額を作る（500,100,50,10,5,1円）','ナップサック問題（重さと価値が混在）','区間スケジューリング（終了時刻早い順）','硬貨を大きい順に選ぶ'],
-    ans:1,exp:'ナップサック問題は局所最適≠全体最適。例: 容量10に(重9,価9)と(重5,価6)×2があると、大きい方を取ると9点だが小さい方2個で12点になる。'}}},
-
-  {id:'l12',title:'幅優先探索（BFS）',icon:'🌐',desc:'キュー・最短経路・グリッドBFS',xp:150,time:'50分',content:{sections:[
-    {keypoints:['**キュー（FIFO）** を使って近いノードから順に探索する','辺の重みが全て 1 のとき **最短経路** を求められる','`dist[]` を -1 で初期化し、訪問済みチェックに使う','グリッドは4方向の dx/dy 配列で扱う','**外周から BFS して海をマーク**、残りが湖（2024年Q6）']},
-    {t:'BFS の基本思想',
-     concept:'スタート地点から「近い順」にノードを探索する方法。\n幅（横）方向に広がるので「幅優先」と呼ぶ。\nキュー（先に入ったものを先に取り出す）を使う。'},
-    {t:'グラフ BFS の実装',
-     code:'#include <stdio.h>\n#include <string.h>\n#define MAXV 1005\n\nint adj[MAXV][MAXV], n, m;\nint dist[MAXV];\nint q[MAXV * MAXV], head, tail;\n\nvoid bfs(int start) {\n    memset(dist, -1, sizeof(dist));  /* -1 = 未訪問 */\n    head = tail = 0;\n    dist[start] = 0;\n    q[tail++] = start;\n\n    while(head < tail) {\n        int v = q[head++];  /* キューから取り出す */\n        for(int u = 1; u <= n; u++) {\n            if(adj[v][u] && dist[u] == -1) {\n                dist[u] = dist[v] + 1;\n                q[tail++] = u;\n            }\n        }\n    }\n}',lang:'c',title:'グラフ BFS テンプレート'},
-    {t:'グリッド BFS（2024年第6問「湖の調査」）',
-     b:'H×W のグリッドで #=地面、.=水面。海（外周）とつながっていない水面が「湖」。',
-     steps:[
-       '外周の水面 (`"."`) から BFS して「海」をすべてマークする',
-       'その後、まだ未マークの水面を BFS で探索し、連結成分の個数を数える',
-       '各連結成分が 1 つの湖になる',
-     ],
-     code:'#include <stdio.h>\n#include <string.h>\n#define MX 205\n\nchar g[MX][MX];\nint vis[MX][MX], H, W;\nint qx[MX*MX], qy[MX*MX], head, tail;\nint dx[] = {0, 0, 1, -1};\nint dy[] = {1, -1, 0, 0};\n\nvoid bfs(int sx, int sy) {\n    head = tail = 0;\n    qx[tail] = sx; qy[tail] = sy; tail++;\n    vis[sx][sy] = 1;\n    while(head < tail) {\n        int x = qx[head], y = qy[head]; head++;\n        for(int d = 0; d < 4; d++) {\n            int nx = x + dx[d], ny = y + dy[d];\n            if(nx>=0 && nx<H && ny>=0 && ny<W\n               && !vis[nx][ny] && g[nx][ny]==\'.\') {\n                vis[nx][ny] = 1;\n                qx[tail] = nx; qy[tail] = ny; tail++;\n            }\n        }\n    }\n}\n\nint main() {\n    scanf("%d %d", &H, &W);\n    for(int i = 0; i < H; i++) scanf("%s", g[i]);\n\n    /* Step1: 外周から BFS で海をマーク */\n    for(int i = 0; i < H; i++) {\n        if(!vis[i][0]   && g[i][0]==\'.\')   bfs(i, 0);\n        if(!vis[i][W-1] && g[i][W-1]==\'.\') bfs(i, W-1);\n    }\n    for(int j = 0; j < W; j++) {\n        if(!vis[0][j]   && g[0][j]==\'.\')   bfs(0, j);\n        if(!vis[H-1][j] && g[H-1][j]==\'.\') bfs(H-1, j);\n    }\n\n    /* Step2: 残った水面の連結成分を数える（= 湖の数） */\n    int lakes = 0;\n    for(int i = 0; i < H; i++)\n        for(int j = 0; j < W; j++)\n            if(!vis[i][j] && g[i][j]==\'.\')\n                { bfs(i, j); lakes++; }\n\n    printf("%d\\n", lakes);\n    return 0;\n}',lang:'c',title:'2024年Q6 完全解答'},
-    {io:[{label:'入力例',text:'4 14\n###...###..##.\n#..#..##..####\n#.##.##..##..#\n###..#########'},{label:'出力',text:'2'}]},
-    {note:'**BFS vs DFS の使い分け**\n最短距離が欲しい → BFS\n「つながっているか（連結成分）」を調べたい → どちらでも OK\n全パターン探索 → DFS（再帰）が書きやすい'},
-  ],quiz:{q:'辺の重みが全て 1 のグラフで最短経路を求めるには？',
-    opts:['DFS（深さ優先探索）','BFS（幅優先探索）','ダイクストラ法','DP'],
-    ans:1,exp:'BFS は近い順に探索するため、辺の重みが 1 のグラフで自動的に最短距離が求まる。'}}},
-
-  {id:'l13',title:'深さ優先探索（DFS）',icon:'🔍',desc:'再帰・バックトラック・全探索',xp:130,time:'45分',content:{sections:[
-    {keypoints:['**スタック（または再帰）** を使って深い方向に進む','行き詰まったら戻る（**バックトラック**）','連結成分の検出・全探索パターンに強い','`visited[]` 配列で訪問済みを管理する','再帰の深さが深すぎるとスタックオーバーフロー（N>10万注意）']},
-    {t:'DFS の基本実装',
-     code:'#include <stdio.h>\n#define MAXV 105\n\nint adj[MAXV][MAXV], n, m;\nint visited[MAXV];\n\nvoid dfs(int v) {\n    visited[v] = 1;  /* 訪問済みにする */\n    printf("%d ", v);\n    for(int u = 1; u <= n; u++) {\n        if(adj[v][u] && !visited[u]) {\n            dfs(u);  /* 再帰で深く進む */\n        }\n    }\n    /* ここに戻ってきたとき = バックトラック */\n}\n\nint main() {\n    /* ...グラフ入力... */\n    dfs(1);  /* 頂点1からスタート */\n    return 0;\n}',lang:'c',title:'DFS テンプレート'},
-    {t:'全探索（2^N 通り）',
-     b:'N 個のアイテムを「選ぶ/選ばない」全パターンを DFS で探索する。N ≤ 20 程度まで。',
-     code:'int a[] = {3, 1, 4, 1, 5};\nint n = 5;\nint ans = 0;\n\nvoid solve(int idx, int current) {\n    if(idx == n) {\n        /* 1つのパターンを評価 */\n        if(current > ans) ans = current;\n        return;\n    }\n    /* 選ぶ */\n    solve(idx + 1, current + a[idx]);\n    /* 選ばない */\n    solve(idx + 1, current);\n}\n\n/* solve(0, 0) で開始 → 2^5 = 32 通り試す */\n',lang:'c',title:'全探索（選ぶ/選ばない）'},
-    {t:'連結成分の数を求める',
-     b:'DFS で訪問したノード = 1つの連結成分。全ノードが訪問されるまでDFSを繰り返す。',
-     code:'int components = 0;\nfor(int v = 1; v <= n; v++) {\n    if(!visited[v]) {\n        dfs(v);\n        components++;  /* 新しい連結成分を発見 */\n    }\n}\nprintf("%d\\n", components);',lang:'c',title:'連結成分の個数'},
-    {warn:'**DFS の深さ制限**\nC のスタックサイズは通常 1〜8 MB。\n再帰の深さが N = 10^5 になるとスタックオーバーフロー。\n→ BFS か、明示的スタック（配列）で代用する。'},
-    {note:'**BFS と DFS の比較**\nBFS: キュー使用、最短距離を求められる、実装がやや複雑\nDFS: 再帰で書ける、全探索・バックトラックに向く、スタックに注意'},
-  ],quiz:{q:'DFS でよく使うデータ構造（または手法）は？',
-    opts:['キュー（FIFO）','スタック / 再帰','優先度付きキュー','ハッシュ'],
-    ans:1,exp:'DFS はスタック（後入れ先出し）を使うか、再帰で実装する。BFS はキュー（先入れ先出し）。'}}},
-
-  {id:'l14',title:'Union-Find（素集合）',icon:'🔗',desc:'グループ管理・連結判定',xp:140,time:'40分',content:{sections:[
-    {keypoints:['2要素が同じグループかを **ほぼ O(1)** で判定できる','`find(x)` で x の根（グループ代表）を返す','`unite(a, b)` で2つのグループを合体する','**経路圧縮** で find をほぼ O(1) に高速化','辺を1本ずつ追加しながら連結判定するときに最強']},
-    {t:'Union-Find の構造',
-     concept:'各要素が「親」を持つ木構造。根（`parent[x] == x`）が異なれば別グループ。\n`find` で根を探し、`unite` で2つの木を合体する。'},
-    {t:'Union-Find の実装',
-     code:'#include <stdio.h>\n#define MAXN 100005\n\nint parent[MAXN];\n\n/* 初期化: 全員が自分自身を親に持つ */\nvoid init(int n) {\n    for(int i = 1; i <= n; i++) parent[i] = i;\n}\n\n/* find: 根（グループ代表）を返す（経路圧縮付き） */\nint find(int x) {\n    if(parent[x] == x) return x;\n    return parent[x] = find(parent[x]);  /* 経路圧縮！ */\n}\n\n/* unite: 2つのグループを合体 */\nvoid unite(int a, int b) {\n    parent[find(a)] = find(b);\n}\n\n/* same: 同じグループか？ */\nint same(int a, int b) {\n    return find(a) == find(b);\n}\n',lang:'c',title:'Union-Find 実装'},
-    {t:'使い方の例',
-     code:'init(5);  /* 1〜5 を初期化 */\nunite(1, 2);  /* 1と2を同じグループに */\nunite(3, 4);  /* 3と4を同じグループに */\n\nprintf("%d\\n", same(1, 2));  /* 1（同じ） */\nprintf("%d\\n", same(1, 3));  /* 0（違う） */\nunite(2, 3);  /* 2と3を合体 → 1,2,3,4が同じグループ */\nprintf("%d\\n", same(1, 4));  /* 1（同じ） */\n',lang:'c',title:'Union-Find 使用例'},
-    {exec:[{title:'実行結果',text:'1\n0\n1'}]},
-    {t:'練習問題：連結判定（ex_07）',
-     b:'N 頂点 M 辺の無向グラフで Q クエリ「u,v は連結か？」に答える。',
-     code:'int main() {\n    int n, m;\n    scanf("%d %d", &n, &m);\n    init(n);\n    for(int i = 0; i < m; i++) {\n        int a, b;\n        scanf("%d %d", &a, &b);\n        unite(a, b);\n    }\n    int q;\n    scanf("%d", &q);\n    while(q--) {\n        int u, v;\n        scanf("%d %d", &u, &v);\n        printf(same(u, v) ? "Yes\\n" : "No\\n");\n    }\n    return 0;\n}',lang:'c',title:'連結判定（Union-Find）'},
-    {note:'**経路圧縮の効果**\n経路圧縮なし: find が O(N) になりうる\n経路圧縮あり: find がほぼ O(1)（アッカーマン関数の逆関数 α(N) ≈ 定数）'},
-  ],quiz:{q:'Union-Find の find が高速な理由は？',
-    opts:['配列だから','経路圧縮で木をほぼ平坦にするから','ハッシュを使うから','常に O(1) ではない'],
-    ans:1,exp:'経路圧縮により木の高さがほぼ 1 になり、find がほぼ O(1) で動く。'}}},
-
-  {id:'l15',title:'動的計画法入門（DP）',icon:'🧩',desc:'部分問題・メモ化・最小コイン・ナップサック',xp:200,time:'60分',content:{sections:[
-    {keypoints:['**部分問題の結果を配列に記憶** して再利用する','`dp[i]` = 状態 i における最適値（問題によって定義が変わる）','漸化式を立てる: `dp[i] = dp[i-1] + ...` の形','初期値（`dp[0]` など）を正しく設定する','ナップサックは**逆順ループ**（同じアイテムを2度使わないため）']},
-    {t:'DP のイメージ',
-     concept:'「フィボナッチを再帰で計算すると同じ計算を何度もする」\n→ 計算結果を配列に保存（メモ化）して再利用する = DP\n\n再帰版: O(2^N)（指数時間）\nDP版: O(N)（線形時間）'},
-    {t:'コイン問題 DP',
-     b:'N 種類のコイン（無限枚）で X 円を作る最少枚数。',
-     steps:[
-       '**dp[i] = i 円を作るのに必要な最少コイン枚数** と定義する',
-       '初期値: `dp[0] = 0`、`dp[1〜X] = 無限大（大きな数）`',
-       '漸化式: コイン c を使うなら `dp[i] = min(dp[i], dp[i-c] + 1)`',
-       'i = 1 から X まで順に計算する',
-     ],
-     code:'#include <stdio.h>\n#define INF 1000000\n\nint dp[10005];\n\nint main() {\n    int n, X;\n    scanf("%d %d", &n, &X);\n    int coin[20];\n    for(int i = 0; i < n; i++) scanf("%d", &coin[i]);\n\n    /* 初期化 */\n    for(int i = 1; i <= X; i++) dp[i] = INF;\n    dp[0] = 0;\n\n    /* DP */\n    for(int i = 1; i <= X; i++) {\n        for(int j = 0; j < n; j++) {\n            if(coin[j] <= i && dp[i - coin[j]] + 1 < dp[i]) {\n                dp[i] = dp[i - coin[j]] + 1;\n            }\n        }\n    }\n\n    printf("%d\\n", dp[X] == INF ? -1 : dp[X]);\n    return 0;\n}',lang:'c',title:'コイン問題 DP 完全解答'},
-    {io:[{label:'入力',text:'3 11\n1 3 5'},{label:'出力',text:'3'}]},
-    {exec:[{title:'dp[] の変化（コイン: 1,3,5）',text:'dp[0]=0\ndp[1]=1 (1円コイン1枚)\ndp[2]=2 (1円×2)\ndp[3]=1 (3円コイン1枚)\ndp[4]=2 (3+1)\ndp[5]=1 (5円コイン1枚)\n...\ndp[11]=3 (5+3+3 または 5+5+1)'}]},
-    {t:'0-1 ナップサック問題 DP',
-     b:'N 個のアイテム（重さ w[i]、価値 v[i]）と容量 W のナップサック。価値を最大化せよ。',
-     steps:[
-       '**dp[j] = 重さ j 以内で入れられる最大価値** と定義',
-       'アイテム i を使う/使わないで漸化式: `dp[j] = max(dp[j], dp[j-w[i]] + v[i])`',
-       '**逆順ループ** `for(j=W; j>=w[i]; j--)` で同じアイテムを2度使わない',
-     ],
-     code:'#include <stdio.h>\nlong long dp[10005];  /* グローバルで0初期化 */\n\nint main() {\n    int n, W;\n    scanf("%d %d", &n, &W);\n    for(int i = 0; i < n; i++) {\n        int w, v;\n        scanf("%d %d", &w, &v);\n        for(int j = W; j >= w; j--) {   /* 逆順！ */\n            long long cand = dp[j - w] + v;\n            if(cand > dp[j]) dp[j] = cand;\n        }\n    }\n    printf("%lld\\n", dp[W]);\n    return 0;\n}',lang:'c',title:'ナップサック DP 完全解答'},
-    {io:[{label:'入力',text:'3 10\n5 10\n4 8\n3 6'},{label:'出力',text:'16'}]},
-    {warn:'**逆順ループが最重要！**\n`for(j=w[i]; j<=W; j++)` と順方向にすると同じアイテムを何度でも使える「無制限ナップサック」になる。\n0-1（各1個）ナップサックには必ず逆順。'},
-  ],quiz:{q:'ナップサック DP で逆順ループを使う理由は？',
-    opts:['速くなるから','同じアイテムを2度使わないため','配列サイズを節約するため','答えが変わらないから'],
-    ans:1,exp:'逆順にすると dp[j-w] がまだ「アイテム i を使う前の値」のまま。順方向だと dp[j-w] が更新済みになり同じアイテムを複数回使ってしまう。'}}},
-
-  {id:'l16',title:'計算量と問題攻略戦略',icon:'⏱️',desc:'O記法・TLE判定・本番での戦略',xp:90,time:'30分',content:{sections:[
-    {keypoints:['O 記法は「計算ステップ数の増え方」を表す','1秒 ≈ **10^8 演算** が目安','N の大きさで「使えるアルゴリズム」が決まる','PCK は第1〜3問を確実に→第4〜5問で差がつく','わからない問題は部分点・コーナーケース対策をする']},
-    {t:'O記法（ランダウ記法）',
-     b:'入力サイズ N に対して、最悪ケースで何回演算するかを表す記法。定数倍は無視する。',
-     table:{h:['O記法','別名','10^5 での回数','1秒以内？'],rows:[
-       ['O(1)','定数時間','1回','✅'],
-       ['O(log N)','対数時間','約17回','✅'],
-       ['O(√N)','平方根時間','約316回','✅'],
-       ['O(N)','線形時間','10万回','✅'],
-       ['O(N log N)','準線形','約170万回','✅'],
-       ['O(N²)','二乗時間','100億回','❌ TLE'],
-       ['O(2^N)','指数時間','約10^30000回','❌ TLE'],
-     ]}},
-    {t:'N の大きさとアルゴリズムの目安',
-     table:{h:['N の制約','使えるアルゴリズム'],rows:[
-       ['N ≤ 10','O(N!) 全列挙 OK'],
-       ['N ≤ 20','O(2^N) 全探索 OK'],
-       ['N ≤ 500','O(N³) DP OK'],
-       ['N ≤ 3000','O(N²) OK'],
-       ['N ≤ 10^5','O(N log N) まで（qsort, BFS, DP）'],
-       ['N ≤ 10^6','O(N) まで'],
-       ['N ≤ 10^9','O(log N) まで（二分探索）'],
-     ]}},
-    {t:'PCK 本番の攻略戦略',
-     steps:[
-       '最初に**全問を 5 分で読み通す**（難易度の把握）',
-       '**第1〜3問を確実に完答**（6点。基礎スキルで取れる）',
-       '**第4〜5問を解く**（合計16点。上位圏）',
-       '第6問以降は解けそうなものに集中（グラフ/貪欲/DP）',
-       '解けない問題は**部分点**（正しいが遅いコード）も出す',
-     ]},
-    {t:'TLE（時間超過）を防ぐチェックリスト',
-     steps:[
-       'N の制約を確認 → O(N²) で間に合うか計算する',
-       '二重ループが避けられないか考える（ソート+貪欲で O(N log N) にできないか？）',
-       '入出力が遅くないか（大量入力時は `scanf/printf` を使う）',
-       '再帰の深さが深すぎないか（BFS や DP で代替できないか）',
-     ]},
-    {concept:'**PCK 頻出パターンまとめ**\n• 第1〜2問: 算術・条件分岐（ `if` + `printf`）\n• 第3問: ループ + 配列 + 最大値\n• 第4問: 全ペア O(N²) or 数学的考察\n• 第5問: **ソート + 貪欲法**（最頻出！）\n• 第6問: BFS / DFS（グリッド or グラフ）\n• 第7問以降: DP・数論・高度なアルゴリズム'},
-  ],quiz:{q:'N=10^5 のとき O(N²) のアルゴリズムは何演算？（1秒≈10^8として）',
-    opts:['1億回（ギリギリOK）','100億回（TLE）','1万回（余裕）','10^10億回'],
-    ans:1,exp:'(10^5)^2 = 10^10 = 100億。1秒10^8演算の目安では約100秒かかりTLE。O(N log N) を使おう。'}}},
+  {id:'l09',title:'ソートアルゴリズム',icon:'📊',desc:'qsortとバブルソート',xp:100,time:'35分',content:{
+    sections:[
+      {t:'なぜソートが重要？',b:'並び替えることで最大・最小の取得、二分探索、貪欲法など様々な問題が解きやすくなります。'},
+      {t:'qsort（標準ライブラリ） O(N log N)',code:'#include <stdlib.h>\nint cmp(const void* a, const void* b){\n    return *(int*)a - *(int*)b; /* 昇順 */\n    /* 降順なら: *(int*)b - *(int*)a */\n}\nqsort(a, n, sizeof(int), cmp);',lang:'c'},
+      {t:'バブルソート O(N²)',code:'for(int i=0;i<n-1;i++)\n    for(int j=0;j<n-1-i;j++)\n        if(a[j]>a[j+1]){\n            int tmp=a[j];\n            a[j]=a[j+1];\n            a[j+1]=tmp;\n        }',lang:'c'}
+    ],
+    quiz:{q:'qsortの計算量は？',opts:['O(N)','O(N log N)','O(N²)','O(2^N)'],ans:1,exp:'qsortはO(N log N)。バブルソートはO(N²)で遅い。競技では必ずqsortを使おう。'}
+  }},
+  {id:'l10',title:'貪欲法（Greedy）',icon:'🎯',desc:'局所最適から大域最適を導く',xp:120,time:'40分',content:{
+    sections:[
+      {t:'貪欲法とは',b:'各ステップで「その瞬間の最良選択」をする手法。局所最適→大域最適が成立する場合のみ有効。'},
+      {t:'2025年第5問「二つの数列」解説',b:'差d[i]=a[i]-b[i]を昇順ソートし、負のd[i]からK個を0にする（a[i]をb[i]で上書き）と最大化できる。',code:'/* 差を計算してソート */\nfor(int i=0;i<n;i++)d[i]=a[i]-b[i];\nqsort(d,n,sizeof(int),cmp);\n/* 負の差からK個を除去 */\nfor(int i=0;i<k;i++)\n    if(d[i]<0) sum-=d[i];',lang:'c'},
+      {t:'2024年第5問「データセンター」解説',b:'ファイルが多い台M台を空にする方針。残りの空き容量≥M台のファイル合計なら"Yes"。'}
+    ],
+    quiz:{q:'貪欲法が成立しない場合は？',opts:['データが大きい','負の重みがある','局所最適≠大域最適','入力がランダム'],ans:2,exp:'局所的に最良でも全体最適にならない場合は使えない。そのときはDPや全探索が必要。'}
+  }},
+  {id:'l11',title:'幅優先探索（BFS）',icon:'🌐',desc:'キューを使ったグラフ探索',xp:150,time:'50分',content:{
+    sections:[
+      {t:'BFSとは',b:'始点から「近い順」に探索する方法。キュー（FIFO）を使います。辺の重みが全て1のとき最短経路を求められる。'},
+      {t:'BFS実装テンプレート',code:'int dist[105]={-1,-1,...}; /* -1=未訪問 */\nint queue[10005],head=0,tail=0;\ndist[start]=0;\nqueue[tail++]=start;\nwhile(head<tail){\n    int v=queue[head++];\n    for(各隣接uについて){\n        if(dist[u]==-1){\n            dist[u]=dist[v]+1;\n            queue[tail++]=u;\n        }\n    }\n}',lang:'c'},
+      {t:'グリッドBFS（湖の調査問題より）',code:'int dx[]={0,0,1,-1},dy[]={1,-1,0,0};\nfor(int d=0;d<4;d++){\n    int nx=x+dx[d],ny=y+dy[d];\n    if(0<=nx&&nx<H&&0<=ny&&ny<W\n       &&!vis[nx][ny]&&grid[nx][ny]==\'.\'){\n        vis[nx][ny]=1;\n        /* キューに追加 */\n    }\n}',lang:'c'}
+    ],
+    quiz:{q:'BFSで使うデータ構造は？',opts:['スタック(LIFO)','キュー(FIFO)','優先度付きキュー','配列'],ans:1,exp:'BFSはキュー（先入れ先出し）を使い近い順に探索。DFSはスタック（再帰）。'}
+  }},
+  {id:'l12',title:'深さ優先探索（DFS）',icon:'🔍',desc:'再帰・バックトラックを使った探索',xp:130,time:'45分',content:{
+    sections:[
+      {t:'DFSとは',b:'深い方向に進みながら探索し、行き詰まったら戻る（バックトラック）方法。再帰で実装するのが自然。'},
+      {t:'DFS実装',code:'int visited[105]={0};\nvoid dfs(int v){\n    visited[v]=1;\n    for(各隣接uについて){\n        if(!visited[u]){\n            dfs(u); /* 再帰 */\n        }\n    }\n}\ndfs(1); /* 頂点1から開始 */\n',lang:'c'},
+      {t:'全探索（2^N通り）',code:'/* N個を選ぶか選ばないか全パターン */\nvoid solve(int idx, int current){\n    if(idx==n){\n        /* 全パターンの評価 */\n        return;\n    }\n    solve(idx+1, current+a[idx]); /* 選ぶ */\n    solve(idx+1, current);        /* 選ばない */\n}',lang:'c'}
+    ],
+    quiz:{q:'DFSとBFSの違いは？',opts:['DFSは速い、BFSは遅い','DFSは深く進む、BFSは近い順','DFSはキュー、BFSはスタック','違いはない'],ans:1,exp:'DFS=深さ優先（スタック/再帰）でどんどん奥へ。BFS=幅優先（キュー）で近い順に探索。'}
+  }},
+  {id:'l13',title:'Union-Find（素集合）',icon:'🔗',desc:'グループ管理の最強データ構造',xp:140,time:'40分',content:{
+    sections:[
+      {t:'Union-Findとは',b:'複数の要素をグループに分け、2つの要素が同じグループかどうか高速に判定するデータ構造。連結判定に最適！'},
+      {t:'実装（経路圧縮付き）',code:'int parent[100005];\nint find(int x){\n    if(parent[x]==x) return x;\n    return parent[x]=find(parent[x]); /* 経路圧縮 */\n}\nvoid unite(int a, int b){\n    parent[find(a)]=find(b);\n}\n/* 初期化 */\nfor(int i=1;i<=n;i++) parent[i]=i;',lang:'c'},
+      {t:'使い方',code:'/* 辺(u,v)を追加 */\nunite(u, v);\n/* u,vが連結か？ */\nif(find(u)==find(v)) printf("Yes\\n");\nelse printf("No\\n");',lang:'c'}
+    ],
+    quiz:{q:'Union-FindのfindがほぼO(1)になる理由は？',opts:['配列だから','経路圧縮で木を平坦化するから','常にO(N)かかる','hashを使うから'],ans:1,exp:'経路圧縮により木の深さがほぼ1になりほぼO(1)で動く（正確にはO(α(N))）。'}
+  }},
+  {id:'l14',title:'二分探索',icon:'🔎',desc:'ソート済みデータを高速に探索',xp:110,time:'35分',content:{
+    sections:[
+      {t:'二分探索とは',b:'ソート済み配列で目標値を探すとき、毎回範囲を半分に絞る手法。O(log N)で非常に高速。N=10^9でも約30回で終わる！'},
+      {t:'実装',code:'int lo=0, hi=n-1;\nwhile(lo<=hi){\n    int mid=(lo+hi)/2;\n    if(a[mid]==target) return mid;   /* 発見 */\n    else if(a[mid]<target) lo=mid+1;\n    else hi=mid-1;\n}\nreturn -1; /* 見つからない */\n',lang:'c'},
+      {t:'答えで二分探索',b:'「○○の最大値を求めよ」→条件を満たす最大値を二分探索で求めるテクニック。'}
+    ],
+    quiz:{q:'N=10^9のとき二分探索の最大ステップ数は？',opts:['100','30','1000','10億'],ans:1,exp:'log₂(10^9)≈30。10億要素でも30回で探索完了！'}
+  }},
+  {id:'l15',title:'計算量とO記法',icon:'⏱️',desc:'アルゴリズムの効率を数学で表す',xp:90,time:'30分',content:{
+    sections:[
+      {t:'O記法とは',b:'入力サイズNに対してアルゴリズムが必要とする計算ステップ数の「増え方」を表す記法。\n\nO(1) < O(log N) < O(√N) < O(N) < O(N log N) < O(N²) < O(2^N)'},
+      {t:'N=10^5での目安（1秒≈10^8演算）',b:'• O(N log N) → 約170万回 ✅\n• O(N²) → 100億回 ❌ TLEになる\n• O(N√N) → 約3200万回 ✅\n• O(2^N) → 宇宙の年齢でも終わらない ❌'},
+      {t:'問題ごとの目安',code:'/* N≤100      → O(N³)まで可 */\n/* N≤1000     → O(N²)まで可 */\n/* N≤10^5     → O(N log N)まで */\n/* N≤10^6     → O(N)まで */',lang:'c'}
+    ],
+    quiz:{q:'N=10^5のとき O(N²)アルゴリズムは何ステップ？',opts:['10万','1000万','100億','1兆'],ans:2,exp:'(10^5)²=10^10=100億。1秒に10^8〜10^9回計算できるのでTLEになる。'}
+  }},
+  {id:'l16',title:'ポインタとメモリ',icon:'🧠',desc:'C言語の核心を理解する',xp:120,time:'40分',content:{
+    sections:[
+      {t:'ポインタとは',b:'変数のアドレス（場所）を格納する変数。&でアドレスを取得、*で中身を参照。',code:'int x=10;\nint *p=&x;\nprintf("%d\\n",*p); /* 10 */\n*p=20;\nprintf("%d\\n",x);  /* 20 */\n',lang:'c'},
+      {t:'scanfで&を使う理由',b:'scanfは「変数のアドレスを受け取り、そこに値を書き込む」関数。だから&が必要！',code:'int a;\nscanf("%d",&a); /* aのアドレスを渡す */\n',lang:'c'}
+    ],
+    quiz:{q:'scanfで &x と書く理由は？',opts:['おまじない','xのアドレスを渡して直接書き込むため','文字列だから','エラー回避'],ans:1,exp:'scanfは「変数のアドレスを受け取り、そこに値を書き込む」関数。ポインタを渡す必要がある。'}
+  }}
+]},
+{level:3,title:'茶帯修行',sub:'動的計画法・数論・高度なアルゴリズム',icon:'🔥',cls:'l3',lessons:[
+  {id:'l17',title:'動的計画法（DP）入門',icon:'🧩',desc:'メモ化で重複計算を排除',xp:200,time:'60分',content:{
+    sections:[
+      {t:'DPとは',b:'問題を小さな部分問題に分割し、その結果を記憶（メモ化）しながら解く手法。同じ計算を繰り返さないことで高速化！'},
+      {t:'フィボナッチ（再帰vs DP）',code:'/* 再帰版：O(2^N)で遅い！ */\nlong long fib_slow(int n){\n    if(n<=1)return n;\n    return fib_slow(n-1)+fib_slow(n-2);\n}\n/* DP版：O(N)で速い！ */\nlong long dp[100];\ndp[0]=0; dp[1]=1;\nfor(int i=2;i<100;i++)\n    dp[i]=dp[i-1]+dp[i-2];',lang:'c'},
+      {t:'コイン問題DP',code:'/* dp[i]=i円を作る最少コイン枚数 */\nfor(int i=1;i<=X;i++) dp[i]=99999;\ndp[0]=0;\nfor(int i=1;i<=X;i++)\n    for(int j=0;j<n;j++)\n        if(coin[j]<=i&&dp[i-coin[j]]+1<dp[i])\n            dp[i]=dp[i-coin[j]]+1;',lang:'c'}
+    ],
+    quiz:{q:'DPの本質は？',opts:['全探索の高速版','部分問題の結果を再利用する','常にO(N)になる','メモリを使わない'],ans:1,exp:'DPは「同じ部分問題を何度も解かない」ことで効率化。メモ化が核心。'}
+  }},
+  {id:'l18',title:'ナップサック問題',icon:'🎒',desc:'0-1ナップサックDPを完全マスター',xp:220,time:'65分',content:{
+    sections:[
+      {t:'問題設定',b:'N個のアイテム（重さw[i]、価値v[i]）と容量Wのナップサック。価値の和を最大化せよ。DPの王道問題！'},
+      {t:'1次元DP（逆順ループ）',code:'long long dp[10001]={0};\nfor(int i=0;i<n;i++){\n    /* 逆順！同じアイテムを2度使わないため */\n    for(int j=W;j>=w[i];j--){\n        long long c=dp[j-w[i]]+v[i];\n        if(c>dp[j]) dp[j]=c;\n    }\n}\nprintf("%lld\\n",dp[W]);',lang:'c'},
+      {t:'なぜ逆順？',b:'順順ループだと dp[j-w[i]] がすでに更新済みになり、同じアイテムを何度も使ってしまう（無制限ナップサックになる）。逆順にすると「更新前の値」から参照できる。'}
+    ],
+    quiz:{q:'ナップサックDPを逆順にループする理由は？',opts:['速いから','アイテムを1度しか使わないため','小さい方が計算しやすいから','ソートが必要だから'],ans:1,exp:'逆順にすることで「アイテムiを使う前の状態」から更新できる。'}
+  }},
+  {id:'l19',title:'素数・数論',icon:'🔢',desc:'GCD・素数・素因数分解を極める',xp:180,time:'50分',content:{
+    sections:[
+      {t:'ユークリッドの互除法',code:'long long gcd(long long a,long long b){\n    return b==0?a:gcd(b,a%b);\n}\nlong long lcm(long long a,long long b){\n    return a/gcd(a,b)*b; /* オーバーフロー対策でa/gをかけてから*b */\n}',lang:'c'},
+      {t:'エラトステネスの篩',code:'#define MX 1000005\nbool sieve[MX];\nvoid buildSieve(){\n    for(int i=2;i<MX;i++)sieve[i]=true;\n    for(int i=2;(long long)i*i<MX;i++)\n        if(sieve[i])\n            for(int j=i*i;j<MX;j+=i)\n                sieve[j]=false;\n}',lang:'c'},
+      {t:'2023年第5問「2023に似た数」解説',b:'p×p×q（p≠q、両方素数）の形か判定。pを2から探しN%(p²)==0ならq=N/p²を確認。',code:'for(long long p=2;p*p*p<=n;p++){\n    if(!isPrime(p)) continue;\n    if(n%(p*p)==0){\n        long long q=n/p/p;\n        if(isPrime(q)&&q!=p){ /* OK! */ }\n    }\n}',lang:'c'}
+    ],
+    quiz:{q:'gcd(12, 8) は？',opts:['2','4','6','24'],ans:1,exp:'gcd(12,8)=gcd(8,4)=gcd(4,0)=4。ユークリッドの互除法。'}
+  }},
+  {id:'l20',title:'累積和と応用',icon:'∑',desc:'区間の和をO(1)で求める技法',xp:160,time:'40分',content:{
+    sections:[
+      {t:'累積和の概念',b:'事前に各位置までの和を計算しておくことで、区間[l,r]の和をO(1)で求められる。Q個のクエリをO(N+Q)で処理できる！',code:'int a[]={3,1,4,1,5,9};int n=6;\nlong long prefix[7]={0};\nfor(int i=0;i<n;i++)\n    prefix[i+1]=prefix[i]+a[i];\n/* [l,r]の和（0-indexed）= prefix[r+1]-prefix[l] */\nprintf("%lld\\n",prefix[4]-prefix[1]); /* a[1]+a[2]+a[3]=4+1+5=10 */',lang:'c'}
+    ],
+    quiz:{q:'a=[1,2,3,4,5]でa[1..3]の和（0-indexed）を累積和で求めると？',opts:['prefix[4]-prefix[1]','prefix[3]-prefix[0]','prefix[3]-prefix[1]','prefix[4]-prefix[0]'],ans:0,exp:'a[1]+a[2]+a[3]=2+3+4=9。prefix[4]-prefix[1]=(1+2+3+4)-(1)=9。'}
+  }},
+  {id:'l21',title:'ダイクストラ法',icon:'🗺️',desc:'重み付きグラフの最短経路',xp:300,time:'70分',content:{
+    sections:[
+      {t:'ダイクストラ法とは',b:'辺に重みがあるグラフで最短経路を求めるアルゴリズム。負の重みがないグラフで有効。'},
+      {t:'基本実装（隣接行列） O(V²)',code:'long long dist[MX];int vis[MX];\nvoid dijkstra(int s){\n    for(int i=1;i<=n;i++){dist[i]=1e18;vis[i]=0;}\n    dist[s]=0;\n    for(int it=0;it<n;it++){\n        /* 未確定で最小distのvを選ぶ */\n        int v=-1;\n        for(int i=1;i<=n;i++)\n            if(!vis[i]&&(v==-1||dist[i]<dist[v]))v=i;\n        if(v==-1)break;\n        vis[v]=1;\n        /* 隣接uを緩和 */\n        for(int u=1;u<=n;u++)\n            if(adj[v][u]&&dist[v]+w[v][u]<dist[u])\n                dist[u]=dist[v]+w[v][u];\n    }\n}',lang:'c'},
+      {t:'注意点',b:'負の辺があるとダイクストラは誤答する。そのときはベルマン-フォード法を使う。'}
+    ],
+    quiz:{q:'ダイクストラ法が使えないのは？',opts:['グラフが非連結','負の辺がある','有向グラフ','ノードが多い'],ans:1,exp:'負の辺があるとダイクストラは誤答する。そのときはベルマン-フォード法を使う。'}
+  }},
+  {id:'l22',title:'LCS（最長共通部分列）',icon:'🧬',desc:'2つの文字列の類似度を測るDP',xp:200,time:'55分',content:{
+    sections:[
+      {t:'LCSとは',b:'2つの文字列S, Tから共通して得られる最長の文字列の長さ。遺伝子比較などに応用。'},
+      {t:'LCS DP',code:'/* dp[i][j]=S[0..i-1]とT[0..j-1]のLCS長 */\nfor(int i=1;i<=n;i++)\n    for(int j=1;j<=m;j++){\n        if(S[i-1]==T[j-1])\n            dp[i][j]=dp[i-1][j-1]+1;\n        else\n            dp[i][j]=max(dp[i-1][j],dp[i][j-1]);\n    }',lang:'c'}
+    ],
+    quiz:{q:'S[i-1]==T[j-1] のとき dp[i][j] = ?',opts:['dp[i-1][j]','dp[i][j-1]','dp[i-1][j-1]+1','0'],ans:2,exp:'一致した場合、1つ前の両文字列のLCSに+1できる。'}
+  }},
+  {id:'l23',title:'過去問解析：2023〜2025年',icon:'📋',desc:'本番の問題構成と攻略戦略',xp:200,time:'45分',content:{
+    sections:[
+      {t:'2025年 問題構成と得点配分',b:'第1問(1点): 算術 → 第2問(2点): 条件分岐 → 第3問(3点): 2次元配列\n第4問(4点): 全ペア判定 → 第5問(6点): 貪欲法 → 第6問以降: 高度な問題'},
+      {t:'攻略の鉄則',b:'① 第1〜3問を完答（確実に6点）\n② 第4〜5問を解けば合計16点（上位圏）\n③ 第6問以降の一つでも解ければ強力\n④ 解けない問題は部分点も狙う'},
+      {t:'頻出パターン',b:'• シミュレーション: 問題文の手順を忠実に実装\n• グリッドBFS: 4方向探索 + 外周から海をマーク（2024年問題6）\n• 貪欲法: ソート後に最適選択（2024/2025年問題5）\n• 数論: 素数判定・GCD（2023年問題5）\n• 条件分岐: 境界値に注意（2025年問題2、2023年問題2）'}
+    ],
+    quiz:{q:'第1〜3問を確実に解くとき、最重要スキルは？',opts:['ダイクストラ法','入出力・条件分岐・ループ・配列','セグメント木','Union-Find'],ans:1,exp:'低得点問題の核心は基礎スキル。入出力・if文・for文・配列の4つをマスターすれば第1〜3問はほぼ解ける。'}
+  }}
+]},
+{level:4,title:'黒帯修行',sub:'上級アルゴリズム・本番対策',icon:'🏆',cls:'l4',lessons:[
+  {id:'l24',title:'セグメント木',icon:'🌲',desc:'区間クエリをO(log N)で処理',xp:350,time:'80分',content:{
+    sections:[
+      {t:'セグメント木とは',b:'配列に対する区間の最大・最小・和などをO(log N)で求め、O(log N)で更新もできる木構造。'},
+      {t:'セグメント木（区間最大）',code:'#define MX (1<<17)\nint seg[2*MX];\nvoid update(int i, int val){\n    i+=MX; seg[i]=val;\n    for(i>>=1;i>=1;i>>=1)\n        seg[i]=max(seg[2*i],seg[2*i+1]);\n}\nint query(int l, int r){\n    int res=0;\n    for(l+=MX,r+=MX;l<r;l>>=1,r>>=1){\n        if(l&1) res=max(res,seg[l++]);\n        if(r&1) res=max(res,seg[--r]);\n    }\n    return res;\n}',lang:'c'}
+    ],
+    quiz:{q:'セグメント木のquery/updateの計算量は？',opts:['O(N)','O(log N)','O(N log N)','O(1)'],ans:1,exp:'木の高さがlog Nなので、queryもupdateもO(log N)。'}
+  }},
+  {id:'l25',title:'最小全域木（MST）',icon:'🌉',desc:'クラスカル法・プリム法',xp:300,time:'75分',content:{
+    sections:[
+      {t:'MSTとは',b:'N頂点の重み付きグラフ全体を連結するN-1本の辺を選び、重みの総和を最小化する問題。'},
+      {t:'クラスカル法（Union-Find使用）',code:'/* 辺を重みの小さい順にソートして貪欲に選ぶ */\nqsort(edges, m, sizeof(Edge), cmpEdge);\nlong long total=0;\nfor(int i=0;i<m;i++){\n    int u=edges[i].u, v=edges[i].v;\n    if(find(u)!=find(v)){\n        unite(u, v);\n        total+=edges[i].w;\n    }\n}',lang:'c'}
+    ],
+    quiz:{q:'クラスカル法で辺を選ぶ基準は？',opts:['頂点番号が小さい','重みが大きい','重みが小さく、サイクルを作らない','ランダム'],ans:2,exp:'重みの小さい辺から順に、サイクルを形成しないものを選んでいく（Union-Findで判定）。'}
+  }},
+  {id:'l26',title:'ビット演算・bitDP',icon:'💾',desc:'2進数操作と集合を使うDP',xp:320,time:'75分',content:{
+    sections:[
+      {t:'ビット演算の基本',code:'int a=0b1010; /* 10 */\nint b=0b1100; /* 12 */\nprintf("%d\\n",a&b);  /* AND: 8  (0b1000) */\nprintf("%d\\n",a|b);  /* OR:  14 (0b1110) */\nprintf("%d\\n",a^b);  /* XOR: 6  (0b0110) */\nprintf("%d\\n",a<<1); /* 左シフト: 20 */\nprintf("%d\\n",a>>1); /* 右シフト: 5  */',lang:'c'},
+      {t:'ビットで集合を表現',code:'int S=0;\nS|=(1<<2);           /* 要素2を追加 */\nbool has2=(S>>2)&1;   /* 要素2が含まれるか */\nS&=~(1<<2);          /* 要素2を削除 */',lang:'c'}
+    ],
+    quiz:{q:'(1<<3) の値は？',opts:['3','6','8','16'],ans:2,exp:'1を左に3ビットシフト=1×2³=8。'}
+  }},
+  {id:'l27',title:'繰り返し二乗法',icon:'🧮',desc:'巨大な累乗を高速計算',xp:260,time:'50分',content:{
+    sections:[
+      {t:'なぜ必要？',b:'a^1000000007 mod m を求めるとき、単純なループでは無理。繰り返し二乗法でO(log n)で解ける。組み合わせの計算にも必須！'},
+      {t:'実装',code:'long long power(long long a, long long n, long long m){\n    long long res=1; a%=m;\n    while(n>0){\n        if(n&1) res=res*a%m; /* 奇数なら掛ける */\n        a=a*a%m;\n        n>>=1;\n    }\n    return res;\n}',lang:'c'}
+    ],
+    quiz:{q:'2^30 をO(log 30)で求める方法は？',opts:['ループで30回掛ける','繰り返し二乗法','電卓','不可能'],ans:1,exp:'繰り返し二乗法はO(log n)で巨大な累乗をmodで計算できる。'}
+  }}
 ]}
-CURREOF
-echo "Generated: $(wc -l < /tmp/part2.txt) lines"
+];
 
 // ═══════════════════════════════════════════════════════════
 // RANKS & ACHIEVEMENTS
@@ -1556,32 +1411,31 @@ function renderAchievements(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// LESSON MODAL  ── rich renderer
+// LESSON MODAL  ── APG4b-level renderer
 // ═══════════════════════════════════════════════════════════
-/* Section element builders */
+function mdInline(s){
+  return s.replace(/\n/g,'<br>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code style="font-family:var(--fm);color:var(--teal);background:rgba(24,200,168,.1);padding:1px 5px;border-radius:3px;font-size:11.5px">$1</code>');
+}
 function lEl(sec){
   let html='';
-  // heading
   if(sec.t) html+=`<div class="l-sec-h">${sec.t}</div>`;
-  // body text (supports **bold**)
-  if(sec.b) html+=`<p>${sec.b.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</p>`;
-  // concept callout
-  if(sec.concept) html+=`<div class="l-concept">${sec.concept.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
-  // warning callout
-  if(sec.warn) html+=`<div class="l-warn">${sec.warn.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
-  // danger callout
-  if(sec.danger) html+=`<div class="l-danger">${sec.danger.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>`;
-  // step list
-  if(sec.steps) html+=`<div class="l-steps">${sec.steps.map((s,i)=>`<div class="l-step"><div class="l-step-n">${i+1}</div><div class="l-step-t">${s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>')}</div></div>`).join('')}</div>`;
-  // comparison table  [{h:['A','B'], rows:[['a','b'],...]}]
+  if(sec.keypoints) html+=`<div class="l-keypoints"><div class="l-keypoints-title">⭐ キーポイント</div><ul>${sec.keypoints.map(k=>`<li>${mdInline(k)}</li>`).join('')}</ul></div>`;
+  if(sec.b) html+=`<p>${mdInline(sec.b)}</p>`;
+  if(sec.concept) html+=`<div class="l-concept">${mdInline(sec.concept)}</div>`;
+  if(sec.warn) html+=`<div class="l-warn">${mdInline(sec.warn)}</div>`;
+  if(sec.danger) html+=`<div class="l-danger">${mdInline(sec.danger)}</div>`;
+  if(sec.note) html+=`<div class="l-note">${mdInline(sec.note)}</div>`;
+  if(sec.steps) html+=`<div class="l-steps">${sec.steps.map((s,i)=>`<div class="l-step"><div class="l-step-n">${i+1}</div><div class="l-step-t">${mdInline(s)}</div></div>`).join('')}</div>`;
   if(sec.table){
-    html+=`<table class="l-table"><thead><tr>${sec.table.h.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
-    html+=sec.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+    html+=`<table class="l-table"><thead><tr>${sec.table.h.map(x=>`<th>${mdInline(x)}</th>`).join('')}</tr></thead><tbody>`;
+    html+=sec.table.rows.map(r=>`<tr>${r.map(c=>`<td>${mdInline(c)}</td>`).join('')}</tr>`).join('');
     html+=`</tbody></table>`;
   }
-  // code block
+  if(sec.io&&sec.io.length) html+=`<div class="l-io-pair">${sec.io.map(b=>`<div class="l-io-box"><div class="l-io-box-title">${b.label||'入出力'}</div><pre>${b.text}</pre></div>`).join('')}</div>`;
+  if(sec.exec&&sec.exec.length) html+=sec.exec.map(e=>`<div class="l-exec"><div class="l-exec-title">${e.title||'実行結果'}</div><pre>${e.text}</pre></div>`).join('');
   if(sec.code) html+=`<div class="code-block">${sec.title?`<div class="code-block-title">${sec.title}</div>`:''}<pre>${colorize(sec.code,sec.lang||'c')}</pre></div>`;
-  // multiple code blocks
   if(sec.codes) html+=sec.codes.map(c=>`<div class="code-block"><div class="code-block-title">${c.title||''}</div><pre>${colorize(c.code,c.lang||'c')}</pre></div>`).join('');
   return html;
 }
